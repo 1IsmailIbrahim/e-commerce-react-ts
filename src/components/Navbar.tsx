@@ -1,9 +1,22 @@
-import { Flex, Box, Heading, Button, useColorMode } from "@chakra-ui/react";
+import React, { useState } from "react";
+import {
+  Flex,
+  Box,
+  Heading,
+  Button,
+  useColorMode,
+  IconButton,
+  useMediaQuery,
+} from "@chakra-ui/react";
 import { Link, NavLink } from "react-router-dom";
+import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import ColorModeToggle from "./ColorModeToggle";
 
 const Navbar = () => {
   const { colorMode } = useColorMode();
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleNavbar = () => setIsOpen(!isOpen);
+
   const LinkStyles = {
     variant: "ghost",
     as: NavLink,
@@ -17,6 +30,20 @@ const Navbar = () => {
       backgroundColor: "gray.200",
       transition: "background-color 0.3s",
     },
+  };
+
+  const [isLargerThanMobile] = useMediaQuery("(min-width: 48em)");
+
+  React.useEffect(() => {
+    if (isLargerThanMobile) {
+      setIsOpen(false);
+    }
+  }, [isLargerThanMobile]);
+
+  const handleLinkClick = () => {
+    if (!isLargerThanMobile) {
+      setIsOpen(false);
+    }
   };
 
   return (
@@ -36,18 +63,32 @@ const Navbar = () => {
         </Heading>
       </Flex>
 
+      <Box display={{ base: "block", md: "none" }}>
+        <IconButton
+          icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
+          variant="ghost"
+          onClick={toggleNavbar}
+          aria-label="Toggle navigation"
+        />
+      </Box>
+
       <Box
-        display={{ base: "none", md: "block" }}
+        display={{ base: isOpen ? "flex" : "none", md: "flex" }}
         flexBasis={{ base: "100%", md: "auto" }}
       >
-        <Flex gap={5} align="center">
-          <Button {...LinkStyles} to={"/"}>
+        <Flex
+          gap={5}
+          align="center"
+          flexDirection={{ base: isOpen ? "column" : "row", md: "row" }}
+          flexBasis={{ base: "100%", md: "auto" }}
+        >
+          <Button {...LinkStyles} to={"/"} onClick={handleLinkClick}>
             Home
           </Button>
-          <Button {...LinkStyles} to={"/about"}>
+          <Button {...LinkStyles} to={"/about"} onClick={handleLinkClick}>
             About
           </Button>
-          <Button {...LinkStyles} to={"/products"}>
+          <Button {...LinkStyles} to={"/products"} onClick={handleLinkClick}>
             Products
           </Button>
           <Box display={{ base: "block" }}>
