@@ -12,13 +12,12 @@ import {
   Stack,
   InputGroup,
   FormHelperText,
+  useToast,
 } from "@chakra-ui/react";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { useAppDispatch } from "../app/store";
-import { userLogin } from "../app/features/loginSlice";
+import { useUserLoginMutation } from "../app/features/loginSlice";
 
 const LoginPage = () => {
-  const dispatch = useAppDispatch();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [user, setUser] = useState({
     identifier: "",
@@ -28,6 +27,8 @@ const LoginPage = () => {
   const [isPassword, setIsPassword] = useState(false);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^.{6,}$/;
+  const toast = useToast();
+  const [userLogin, { isLoading }] = useUserLoginMutation();
 
   // Handlers
   const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
@@ -50,31 +51,46 @@ const LoginPage = () => {
     }
   };
 
-  const onSubmitHandler = (e: FormEvent<HTMLDivElement>) => {
+  const onSubmitHandler = async (e: FormEvent<HTMLDivElement>) => {
     e.preventDefault();
-    if (
-      !emailRegex.test(user.identifier) &&
-      !passwordRegex.test(user.password)
-    ) {
-      setIsEmail(true);
-      setIsPassword(true);
-      return;
-    }
+
     if (!emailRegex.test(user.identifier)) {
       setIsEmail(true);
       return;
     }
+
     if (!passwordRegex.test(user.password)) {
       setIsPassword(true);
       return;
     }
-    dispatch(userLogin(user));
-    console.log(user);
-    setUser({ identifier: "", password: "" });
+
+    try {
+      const response = await userLogin(user).unwrap();
+      console.log("Login successful:", response);
+      setUser({ identifier: "", password: "" });
+      toast({
+        title: "Login successful",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      toast({
+        title: error.data?.error?.message || "Login failed",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
-    <Stack minH={"100vh"} direction={{ base: "column", md: "row" }}>
+    <Stack
+      minHeight={"calc(100vh - 63px)"}
+      direction={{ base: "column", md: "row" }}
+    >
       <Flex p={8} flex={1} align={"center"} justify={"center"}>
         <Stack spacing={4} w={"full"} maxW={"md"}>
           <Heading mb={7} fontSize={"3xl"}>
@@ -140,6 +156,7 @@ const LoginPage = () => {
                 type="submit"
                 colorScheme={isEmail || isPassword ? "red" : "purple"}
                 variant={"solid"}
+                isLoading={isLoading}
               >
                 Sign in
               </Button>

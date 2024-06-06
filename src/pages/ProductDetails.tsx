@@ -5,9 +5,9 @@ import {
   Stack,
   Text,
   Button,
-  Box,
   useColorMode,
   Flex,
+  Box,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useQuery } from "react-query";
@@ -64,7 +64,7 @@ const ProductDetailsPage = () => {
   }
 
   return (
-    <>
+    <Box mx={2}>
       <Flex maxW={"md"} mx={"auto"} my={7}>
         <Flex
           cursor={"pointer"}
@@ -125,7 +125,7 @@ const ProductDetailsPage = () => {
           </Stack>
         </CardBody>
       </Card>
-    </>
+    </Box>
   );
 };
 
