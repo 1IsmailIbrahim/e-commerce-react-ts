@@ -53,7 +53,6 @@ const Navbar = () => {
       justify="space-between"
       wrap="wrap"
       padding="1rem"
-      marginBottom={"10px"}
       bg={colorMode === "light" ? "#e6f3fd" : "gray.900"}
       color={colorMode === "light" ? "gray.900" : "white"}
     >
@@ -90,6 +89,15 @@ const Navbar = () => {
           </Button>
           <Button {...LinkStyles} to={"/products"} onClick={handleLinkClick}>
             Products
+          </Button>
+          <Button
+            as={NavLink}
+            w={20}
+            rounded={"full"}
+            to={"/login"}
+            onClick={handleLinkClick}
+          >
+            Login
           </Button>
           <Box display={{ base: "block" }}>
             <ColorModeToggle />

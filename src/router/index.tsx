@@ -11,6 +11,7 @@ import AboutPage from "../pages/About";
 import ProductsPage from "../pages/Products";
 import ProductDetailsPage from "../pages/ProductDetails";
 import PageNotFound from "../pages/PageNotFound";
+import LoginPage from "../pages/Login";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -21,6 +22,7 @@ const router = createBrowserRouter(
         <Route path="/about" element={<AboutPage />} />
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/product/:id" element={<ProductDetailsPage />} />
+        <Route path="/login" element={<LoginPage />} />
       </Route>
 
       {/* Page Not Found */}

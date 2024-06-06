@@ -27,7 +27,7 @@ const HoverImage = ({ thumbnailSrc, fullImageSrc, alt }: IProps) => {
         boxShadow="md"
         transition="transform 0.3s ease"
         rounded={"md"}
-        transform={isHovered ? "scale(2)" : "scale(1)"}
+        transform={isHovered ? "scale(1.7)" : "scale(1)"}
         visibility={isHovered ? "visible" : "hidden"}
       />
     </Box>
