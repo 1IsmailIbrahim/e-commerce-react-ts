@@ -16,8 +16,10 @@ import {
 } from "@chakra-ui/react";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useUserLoginMutation } from "../app/features/loginSlice";
+import CookieService from "../services/CookieService";
 
 const LoginPage = () => {
+  const [userLogin, { isLoading }] = useUserLoginMutation();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [user, setUser] = useState({
     identifier: "",
@@ -28,7 +30,6 @@ const LoginPage = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^.{6,}$/;
   const toast = useToast();
-  const [userLogin, { isLoading }] = useUserLoginMutation();
 
   // Handlers
   const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
@@ -64,16 +65,27 @@ const LoginPage = () => {
       return;
     }
 
+    // Cookies expire date
+    const date = new Date();
+    const IN_DAYS = 3;
+    const EXPIRES_IN_DAYS = 1000 * 60 * 60 * 24 * IN_DAYS;
+    date.setTime(date.getTime() + EXPIRES_IN_DAYS);
+    const options = { path: "/", expires: date };
+
     try {
       const response = await userLogin(user).unwrap();
       console.log("Login successful:", response);
-      setUser({ identifier: "", password: "" });
+      CookieService.set("jwt", response.jwt, options);
       toast({
         title: "Login successful",
         status: "success",
-        duration: 3000,
+        duration: 1500,
         isClosable: true,
       });
+      setTimeout(() => {
+        setUser({ identifier: "", password: "" });
+        location.replace("/");
+      }, 1500);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Login failed:", error);
@@ -87,10 +99,7 @@ const LoginPage = () => {
   };
 
   return (
-    <Stack
-      minHeight={"calc(100vh - 63px)"}
-      direction={{ base: "column", md: "row" }}
-    >
+    <Stack pt={20} direction={{ base: "column", md: "row" }}>
       <Flex p={8} flex={1} align={"center"} justify={"center"}>
         <Stack spacing={4} w={"full"} maxW={"md"}>
           <Heading mb={7} fontSize={"3xl"}>

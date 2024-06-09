@@ -8,7 +8,9 @@ import ProductCardSkeleton from "../components/ProductCardSkeleton";
 const ProductsPage = () => {
   const getProductList = async () => {
     const { data } = await axios.get(
-      `${import.meta.env.VITE_SERVER_URL}/api/products/?populate=thumbnail`
+      `${
+        import.meta.env.VITE_SERVER_URL
+      }/api/products?populate=thumbnail,categories&fields[0]=title&fields[2]=price&fields[1]=description`
     );
     return data;
   };
@@ -17,7 +19,7 @@ const ProductsPage = () => {
 
   if (isLoading) {
     return (
-      <Box maxW="1400px" mx="auto" px={4} py={8}>
+      <Box maxW="1400px" mx="auto" px={4} py={8} pt={20}>
         <Grid templateColumns="repeat(auto-fill, minmax(300px, 1fr))" gap={6}>
           {Array.from({ length: 8 }, (_, idx) => (
             <ProductCardSkeleton key={idx} variant={"circle"} />
@@ -28,7 +30,7 @@ const ProductsPage = () => {
   }
 
   return (
-    <Box maxW="1400px" mx="auto" px={4} py={8}>
+    <Box maxW="1400px" mx="auto" px={4} py={8} pt={20}>
       <Grid templateColumns="repeat(auto-fill, minmax(300px, 1fr))" gap={6}>
         {data.data.map((product: IProduct) => (
           <ProductCard key={product.id} {...product} />

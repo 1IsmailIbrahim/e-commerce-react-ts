@@ -16,9 +16,12 @@ import ProductCardSkeleton from "../components/ProductCardSkeleton";
 import { IProduct } from "../interfaces";
 import HoverImage from "../components/HoverImage";
 import { ArrowBackIcon } from "@chakra-ui/icons";
+import { useAppDispatch } from "../app/store";
+import { addToCart } from "../app/features/cartSlice";
 
 const ProductDetailsPage = () => {
   const { id } = useParams();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
   const buttonStyles = {
@@ -42,7 +45,7 @@ const ProductDetailsPage = () => {
     const { data } = await axios.get(
       `${
         import.meta.env.VITE_SERVER_URL
-      }/api/products/${id}?populate=thumbnail,categories`
+      }/api/products/${id}?populate=thumbnail,categories&fields[0]=title&fields[2]=price&fields[1]=description`
     );
     return data;
   };
@@ -57,14 +60,18 @@ const ProductDetailsPage = () => {
 
   if (isLoading) {
     return (
-      <Box maxW={"sm"} mx={"auto"} my={20}>
+      <Box pt={20} maxW={"sm"} mx={"auto"} my={20}>
         <ProductCardSkeleton variant={""} />
       </Box>
     );
   }
 
+  const addToCartHandler = () => {
+    dispatch(addToCart(data.data));
+  };
+
   return (
-    <Box mx={2}>
+    <Box pt={20} mx={2}>
       <Flex maxW={"md"} mx={"auto"} my={7}>
         <Flex
           cursor={"pointer"}
@@ -119,6 +126,7 @@ const ProductDetailsPage = () => {
               border={"none"}
               variant="outline"
               {...buttonStyles}
+              onClick={addToCartHandler}
             >
               Add to cart
             </Button>

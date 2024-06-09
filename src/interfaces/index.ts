@@ -7,4 +7,5 @@ export interface IProduct {
     thumbnail: { data: { attributes: { url: string } } };
     categories: { data: { attributes: { title: string } } };
   };
+  quantity: number;
 }

@@ -14,7 +14,6 @@ interface ILoginResponse {
 }
 export const LoginApiSlice = createApi({
   reducerPath: "login",
-  tagTypes: ["login"],
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_SERVER_URL,
   }),
