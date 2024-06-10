@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Flex,
   Box,
@@ -22,19 +22,20 @@ import CookieService from "../services/CookieService";
 import { IoIosLogOut } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { selectCart } from "../app/features/cartSlice";
+import { useAppDispatch } from "../app/store";
+import { isOpenCartDrawerAction } from "../app/features/globalSlice";
 
 const Navbar = () => {
   const { cartProducts } = useSelector(selectCart);
-
+  const dispatch = useAppDispatch();
   const { colorMode } = useColorMode();
   const { pathname } = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const toggleNavbar = () => setIsOpen(!isOpen);
+  const navbarRef = useRef<HTMLDivElement>(null);
   const token = CookieService.get("jwt");
 
   const LinkStyles = {
     variant: "ghost",
-    as: NavLink,
     size: "sm",
     border: "1px solid",
     borderRadius: "30",
@@ -55,11 +56,33 @@ const Navbar = () => {
 
   const [isLargerThanMobile] = useMediaQuery("(min-width: 48em)");
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isLargerThanMobile) {
       setIsOpen(false);
     }
   }, [isLargerThanMobile]);
+
+  // Close nav when an action happened
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        navbarRef.current &&
+        !navbarRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
+  const toggleNavbar = () => setIsOpen(!isOpen);
 
   const handleLinkClick = () => {
     if (!isLargerThanMobile) {
@@ -118,8 +141,10 @@ const Navbar = () => {
       </Menu>
     );
   };
+
   return (
     <Flex
+      ref={navbarRef}
       as="nav"
       align="center"
       justify="space-between"
@@ -158,13 +183,26 @@ const Navbar = () => {
           flexDirection={{ base: isOpen ? "column" : "row", md: "row" }}
           flexBasis={{ base: "100%", md: "auto" }}
         >
-          <Button {...LinkStyles} to={"/"} onClick={handleLinkClick}>
+          <Button
+            {...LinkStyles}
+            as={NavLink}
+            to={"/"}
+            onClick={handleLinkClick}
+          >
             Home
           </Button>
-          <Button {...LinkStyles} to={"/products"} onClick={handleLinkClick}>
+          <Button
+            {...LinkStyles}
+            as={NavLink}
+            to={"/products"}
+            onClick={handleLinkClick}
+          >
             Products
           </Button>
-          <Button {...LinkStyles} to={"/cart"} onClick={handleLinkClick}>
+          <Button
+            {...LinkStyles}
+            onClick={() => dispatch(isOpenCartDrawerAction())}
+          >
             Cart ({cartProducts.length})
           </Button>
           {!token && (

@@ -24,10 +24,13 @@ const cartSlice = createSlice({
         action.payload
       );
     },
+    removeAllCart: (state) => {
+      state.cartProducts = [];
+    },
   },
 });
 
-export const { addToCart, removeFromCart } = cartSlice.actions;
+export const { addToCart, removeFromCart, removeAllCart } = cartSlice.actions;
 export const selectCart = ({ cart }: RootState) => cart;
 
 export default cartSlice.reducer;

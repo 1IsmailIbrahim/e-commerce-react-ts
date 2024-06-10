@@ -44,19 +44,19 @@ const ProductCard = (data: IProduct) => {
             thumbnail?.data?.attributes?.url
           }`}
           alt="Product image"
-          borderRadius="full"
+          borderRadius="20px"
           boxSize={200}
           mx={"auto"}
         />
         <Stack mt="6" spacing="3" textAlign={"center"}>
           <Heading size="md">{title}</Heading>
           <Text>
-            {description.length >= 150
-              ? `${description.slice(0, 150)}...`
+            {description.length >= 100
+              ? `${description.slice(0, 100)}...`
               : description}
           </Text>
           <Text color="purple.600" fontSize="3xl">
-            {price}
+            ${price}
           </Text>
           <Flex
             justifyContent={"center"}
