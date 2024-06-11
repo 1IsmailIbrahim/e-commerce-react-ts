@@ -17,9 +17,6 @@ const globalSlice = createSlice({
   name: "global",
   initialState,
   reducers: {
-    isOpenCartDrawerAction: (state) => {
-      state.isOpenCartDrawer = !state.isOpenCartDrawer;
-    },
     onOpenCartDrawerAction: (state) => {
       state.onOpenCartDrawer = true;
       state.isOpenCartDrawer = true;
@@ -31,11 +28,8 @@ const globalSlice = createSlice({
   },
 });
 
-export const {
-  isOpenCartDrawerAction,
-  onCloseCartDrawerAction,
-  onOpenCartDrawerAction,
-} = globalSlice.actions;
+export const { onCloseCartDrawerAction, onOpenCartDrawerAction } =
+  globalSlice.actions;
 export const selectGlobal = ({ global }: RootState) => global;
 
 export default globalSlice.reducer;

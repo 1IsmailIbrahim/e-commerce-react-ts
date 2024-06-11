@@ -15,6 +15,9 @@ import LoginPage from "../pages/Login";
 import ProtectedRoute from "../auth/ProtectedRoute";
 import CookieService from "../services/CookieService";
 import CartPage from "../pages/Cart";
+import Dashboard from "../pages/dashboard";
+import DashboardLayout from "../pages/dashboard/DashboardLayout";
+import DashboardProducts from "../pages/dashboard/DashboardProducts";
 
 const token = CookieService.get("jwt");
 const test = token ? true : false;
@@ -51,6 +54,16 @@ const router = createBrowserRouter(
           }
         />
       </Route>
+      {/* Dashboard Layout */}
+      <Route
+        path="/dashboard"
+        element={<DashboardLayout children={undefined} />}
+        errorElement={<ErrorHandler />}
+      >
+        <Route index element={<Dashboard />} />
+        <Route path="products" element={<DashboardProducts />} />
+      </Route>
+      {/* Login Page */}
       <Route
         path="/login"
         element={

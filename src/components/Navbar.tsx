@@ -23,7 +23,7 @@ import { IoIosLogOut } from "react-icons/io";
 import { useSelector } from "react-redux";
 import { selectCart } from "../app/features/cartSlice";
 import { useAppDispatch } from "../app/store";
-import { isOpenCartDrawerAction } from "../app/features/globalSlice";
+import { onOpenCartDrawerAction } from "../app/features/globalSlice";
 
 const Navbar = () => {
   const { cartProducts } = useSelector(selectCart);
@@ -33,6 +33,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navbarRef = useRef<HTMLDivElement>(null);
   const token = CookieService.get("jwt");
+  const [isLargerThanMobile] = useMediaQuery("(min-width: 48em)");
 
   const LinkStyles = {
     variant: "ghost",
@@ -54,14 +55,11 @@ const Navbar = () => {
     },
   };
 
-  const [isLargerThanMobile] = useMediaQuery("(min-width: 48em)");
-
   useEffect(() => {
     if (isLargerThanMobile) {
       setIsOpen(false);
     }
   }, [isLargerThanMobile]);
-
   // Close nav when an action happened
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -83,19 +81,16 @@ const Navbar = () => {
   }, [isOpen]);
 
   const toggleNavbar = () => setIsOpen(!isOpen);
-
   const handleLinkClick = () => {
     if (!isLargerThanMobile) {
       setIsOpen(false);
     }
   };
-
   const onLogout = () => {
     CookieService.remove("jwt");
     handleLinkClick();
     location.replace(pathname);
   };
-
   const ProfileMenu = () => {
     return (
       <Menu>
@@ -164,7 +159,6 @@ const Navbar = () => {
       </Flex>
       <Box display={{ base: "flex", md: "none" }}>
         {token && !isLargerThanMobile && ProfileMenu()}
-
         <IconButton
           icon={isOpen ? <CloseIcon /> : <HamburgerIcon boxSize={6} />}
           variant="ghost"
@@ -172,7 +166,6 @@ const Navbar = () => {
           aria-label="Toggle navigation"
         />
       </Box>
-
       <Box
         display={{ base: isOpen ? "flex" : "none", md: "flex" }}
         flexBasis={{ base: "100%", md: "auto" }}
@@ -201,7 +194,7 @@ const Navbar = () => {
           </Button>
           <Button
             {...LinkStyles}
-            onClick={() => dispatch(isOpenCartDrawerAction())}
+            onClick={() => dispatch(onOpenCartDrawerAction())}
           >
             Cart ({cartProducts.length})
           </Button>

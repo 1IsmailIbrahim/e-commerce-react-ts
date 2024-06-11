@@ -1,7 +1,7 @@
 import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
 import { RouterProvider } from "react-router-dom";
 import router from "./router";
-import CartDrawer from "./pages/CartDrawer";
+import CartDrawer from "./components/CartDrawer";
 
 const App = () => {
   return (

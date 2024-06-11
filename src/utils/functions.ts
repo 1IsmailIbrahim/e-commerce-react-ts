@@ -1,25 +1,37 @@
 import { IProduct } from "../interfaces";
 
-export const addItemToCart = (cartProducts: IProduct[], action: IProduct) => {
-  const exists = cartProducts.find((item: IProduct) => item.id === action.id);
+export const addItemToCart = (
+  cartProducts: IProduct[],
+  selectedProduct: IProduct
+) => {
+  const exists = cartProducts.find(
+    (item: IProduct) => item.id === selectedProduct.id
+  );
 
   if (exists) {
     return cartProducts.map((item: IProduct) =>
-      item.id === action.id ? { ...item, quantity: item.quantity + 1 } : item
+      item.id === selectedProduct.id
+        ? { ...item, quantity: item.quantity + 1 }
+        : item
     );
   }
 
-  return [...cartProducts, { ...action, quantity: 1 }];
+  return [...cartProducts, { ...selectedProduct, quantity: 1 }];
 };
 
-export const removeItemFromCart = (cartItems: IProduct[], action: IProduct) => {
-  if (action.quantity > 1) {
+export const removeItemFromCart = (
+  cartItems: IProduct[],
+  selectedProduct: IProduct
+) => {
+  if (selectedProduct.quantity > 1) {
     return cartItems.map((item: IProduct) =>
-      item.id === action.id ? { ...item, quantity: item.quantity - 1 } : item
+      item.id === selectedProduct.id
+        ? { ...item, quantity: item.quantity - 1 }
+        : item
     );
   }
-  if (action.quantity === 1) {
-    return cartItems.filter((item: IProduct) => item.id !== action.id);
+  if (selectedProduct.quantity === 1) {
+    return cartItems.filter((item: IProduct) => item.id !== selectedProduct.id);
   }
   return cartItems;
 };

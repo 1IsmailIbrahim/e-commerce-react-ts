@@ -3,7 +3,7 @@ import { IProduct } from "../../interfaces";
 import { RootState } from "../store";
 import { addItemToCart, removeItemFromCart } from "../../utils/functions";
 
-interface ICart {
+export interface ICart {
   cartProducts: IProduct[];
 }
 

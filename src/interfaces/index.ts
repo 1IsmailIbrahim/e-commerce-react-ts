@@ -5,7 +5,7 @@ export interface IProduct {
     description: string;
     price: number;
     thumbnail: { data: { attributes: { url: string } } };
-    categories: { data: { attributes: { title: string } } };
+    categories: { data: Array<{ attributes: { title: string } }> };
   };
   quantity: number;
 }

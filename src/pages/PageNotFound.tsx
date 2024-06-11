@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Box,
   Flex,
@@ -6,11 +6,15 @@ import {
   Heading,
   Button,
   useColorMode,
+  ButtonGroup,
 } from "@chakra-ui/react";
 
 const PageNotFound = () => {
+  const navigate = useNavigate();
   const { colorMode } = useColorMode();
+
   const isDark = colorMode === "dark";
+  const goBack = () => navigate(-1);
 
   return (
     <Flex
@@ -24,7 +28,7 @@ const PageNotFound = () => {
     >
       <Box px={4} py={{ base: 8, lg: 12 }}>
         <Flex direction="column" align="center" justify="center">
-          <Heading as="h1" size="4xl" color="#149eca" fontWeight="bold">
+          <Heading as="h1" size="4xl" color="purple.500" fontWeight="bold">
             404
           </Heading>
           <Text
@@ -47,16 +51,26 @@ const PageNotFound = () => {
           >
             The page you’re looking for doesn’t exist.
           </Text>
-          <Button
-            as={Link}
-            to="/"
-            bg="#149eca"
-            color="white"
-            _hover={{ textDecoration: "none", bg: "#117b9b" }}
-            reloadDocument
-          >
-            Go Home
-          </Button>
+          <ButtonGroup>
+            <Button
+              as={Link}
+              to="/"
+              bg="purple.500"
+              color="white"
+              _hover={{ bg: "purple.700" }}
+              reloadDocument
+            >
+              Go Home
+            </Button>
+            <Button
+              onClick={goBack}
+              bg="purple.500"
+              color="white"
+              _hover={{ bg: "purple.700" }}
+            >
+              Go Back
+            </Button>
+          </ButtonGroup>
         </Flex>
       </Box>
     </Flex>
