@@ -6,6 +6,7 @@ import cartSlice, { ICart } from "./features/cartSlice";
 import globalSlice from "./features/globalSlice";
 import storage from "redux-persist/lib/storage";
 import { PersistPartial } from "redux-persist/es/persistReducer";
+import { productsApiSlice } from "./services/productsApiSlice";
 
 interface IPersistCart {
   key: string;
@@ -28,9 +29,13 @@ export const store: EnhancedStore<{
     cart: persistedCart,
     global: globalSlice,
     [LoginApiSlice.reducerPath]: LoginApiSlice.reducer,
+    [productsApiSlice.reducerPath]: productsApiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(LoginApiSlice.middleware),
+    getDefaultMiddleware().concat(
+      LoginApiSlice.middleware,
+      productsApiSlice.middleware
+    ),
 });
 
 export const persistor = persistStore(store);

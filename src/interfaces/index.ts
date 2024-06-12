@@ -1,11 +1,39 @@
-export interface IProduct {
-  id?: number;
+export interface ICategory {
+  id: number;
   attributes: {
     title: string;
-    description: string;
-    price: number;
-    thumbnail: { data: { attributes: { url: string } } };
-    categories: { data: Array<{ attributes: { title: string } }> };
   };
-  quantity: number;
+}
+
+export interface IThumbnail {
+  data: {
+    attributes: {
+      url: string;
+    };
+  };
+}
+
+export interface IProductAttributes {
+  title: string;
+  description: string;
+  price: number;
+  stock?: number;
+  thumbnail: IThumbnail;
+  categories: {
+    data: ICategory[];
+  };
+}
+
+export interface IProduct {
+  id: number;
+  attributes: IProductAttributes;
+}
+
+export interface IProductsResponse {
+  data: IProduct[];
+  meta: {
+    pagination: {
+      total: number;
+    };
+  };
 }

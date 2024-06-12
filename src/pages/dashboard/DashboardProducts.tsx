@@ -12,77 +12,104 @@ import {
   Flex,
   Text,
   useDisclosure,
+  Image,
+  FormControl,
+  FormLabel,
+  Input,
+  Textarea,
+  CheckboxGroup,
+  Stack,
+  Checkbox,
+  Box,
 } from "@chakra-ui/react";
 import TableSkeleton from "../../components/TableSkeleton";
+import { ChangeEvent, useEffect, useState } from "react";
+import { ICategory, IProduct, IProductAttributes } from "../../interfaces";
+import {
+  useGetDashboardProductsQuery,
+  useDeleteDashboardProductMutation,
+} from "../../app/services/productsApiSlice";
+import AlertDialog from "../../shared/AlertDialog";
+import CustomModal from "../../shared/CustomModal";
 import axios from "axios";
-import { useQuery, useQueryClient } from "react-query";
-import { useState, useRef } from "react";
-import { IProduct } from "../../interfaces";
-import CustomEditModal from "../../components/EditModal";
-import CustomDeleteModal from "../../components/DeleteModal";
 
 const DashboardProducts = () => {
-  const queryClient = useQueryClient();
+  const { data, isLoading } = useGetDashboardProductsQuery();
+  const [deleteProduct, { isLoading: isDeleting, isSuccess }] =
+    useDeleteDashboardProductMutation();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const {
-    isOpen: isEditOpen,
-    onOpen: onEditOpen,
-    onClose: onEditClose,
+    isOpen: isModalOpen,
+    onOpen: onModalOpen,
+    onClose: onModalClose,
   } = useDisclosure();
-  const {
-    isOpen: isDeleteOpen,
-    onOpen: onDeleteOpen,
-    onClose: onDeleteClose,
-  } = useDisclosure();
-  const [selectedProduct, setSelectedProduct] = useState<IProduct | null>(null);
-  const [productToDelete, setProductToDelete] = useState<IProduct | null>(null);
+  const [productToDelete, setProductToDelete] = useState<number | null>(null);
+  const [productToEdit, setProductToEdit] = useState<IProductAttributes | null>(
+    null
+  );
+  const [categoriesList, setCategoriesList] = useState<ICategory[]>([]);
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
 
-  const initialRef = useRef<HTMLInputElement | null>(null);
-  const finalRef = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const response = await axios.get(
+        `${import.meta.env.VITE_SERVER_URL}/api/categories`
+      );
+      setCategoriesList(response.data.data);
+    };
+    fetchCategories();
+  }, []);
 
-  const getProductList = async () => {
-    const { data } = await axios.get(
-      `${
-        import.meta.env.VITE_SERVER_URL
-      }/api/products?populate=thumbnail,categories&fields[0]=title&fields[2]=price&fields[1]=description`
-    );
-    return data;
+  // ** Delete Handlers
+  const handleDelete = (id: number) => {
+    setProductToDelete(id);
+    onOpen();
   };
 
-  const { data, isLoading } = useQuery("products", getProductList);
+  const onDestroyHandler = () => {
+    if (productToDelete !== null) {
+      deleteProduct(productToDelete).unwrap();
+    }
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      setProductToDelete(null);
+      onClose();
+    }
+  }, [isSuccess]);
+
+  // ** Edit Handlers
+  const handleEdit = (product: IProductAttributes) => {
+    setProductToEdit(product);
+    onModalOpen();
+  };
+
+  const onChangeHandler = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    if (productToEdit) {
+      setProductToEdit({
+        ...productToEdit,
+        [name]: value,
+      });
+    }
+  };
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(URL.createObjectURL(file));
+    }
+  };
+
+  const onSubmitHandler = () => {
+    console.log(productToEdit);
+  };
 
   if (isLoading) {
     return <TableSkeleton />;
   }
-
-  const handleEdit = (product: IProduct) => {
-    setSelectedProduct(product);
-    onEditOpen();
-  };
-
-  const handleDelete = (product: IProduct) => {
-    setProductToDelete(product);
-    onDeleteOpen();
-  };
-
-  const confirmDelete = async () => {
-    if (productToDelete) {
-      await axios.delete(
-        `${import.meta.env.VITE_SERVER_URL}/api/products/${productToDelete.id}`
-      );
-      onDeleteClose();
-      setProductToDelete(null);
-      queryClient.invalidateQueries("products");
-    }
-  };
-
-  const EditUpdate = async (updatedProduct: IProduct) => {
-    await axios.put(
-      `${import.meta.env.VITE_SERVER_URL}/api/products/${updatedProduct.id}`,
-      { data: updatedProduct.attributes }
-    );
-    queryClient.invalidateQueries("products");
-  };
-
   return (
     <>
       <TableContainer>
@@ -91,23 +118,17 @@ const DashboardProducts = () => {
           <Thead>
             <Tr>
               <Th>Title</Th>
-              <Th>Description</Th>
-              <Th>Price</Th>
               <Th>Categories</Th>
+              <Th>Image</Th>
+              <Th>Stock</Th>
+              <Th>Price</Th>
               <Th>Actions</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {data.data.map((product: IProduct) => (
-              <Tr
-                _hover={{ bg: "gray.700", transition: "0.3s" }}
-                key={product.id}
-              >
+            {data?.data?.map((product: IProduct) => (
+              <Tr key={product.id}>
                 <Td>{product.attributes.title}</Td>
-                <Td maxW={"200px"} overflow={"hidden"}>
-                  {product.attributes.description}
-                </Td>
-                <Td>${product.attributes.price}</Td>
                 <Td>
                   <Flex gap={1} flexWrap={"wrap"}>
                     {product.attributes.categories?.data.map(
@@ -116,23 +137,32 @@ const DashboardProducts = () => {
                         idx: number
                       ) => (
                         <Text cursor={"pointer"} key={idx} p={1}>
-                          {category.attributes.title}
+                          {category.attributes.title.toUpperCase()}
                         </Text>
                       )
                     )}
                   </Flex>
                 </Td>
                 <Td>
+                  <Image
+                    boxSize={50}
+                    rounded={"lg"}
+                    src={`${import.meta.env.VITE_SERVER_URL}${
+                      product.attributes.thumbnail.data?.attributes?.url
+                    }`}
+                  />
+                </Td>
+                <Td>{product.attributes.stock}</Td>
+                <Td>${product.attributes.price}</Td>
+                <Td>
                   <Flex justifyContent={"flex-end"}>
                     <Button
                       size="sm"
                       bg="purple.500"
                       color="white"
-                      _hover={{
-                        bg: "purple.300",
-                      }}
+                      _hover={{ bg: "purple.300" }}
                       mr={2}
-                      onClick={() => handleEdit(product)}
+                      onClick={() => handleEdit(product.attributes)}
                     >
                       Edit
                     </Button>
@@ -140,10 +170,8 @@ const DashboardProducts = () => {
                       size="sm"
                       bg="red.400"
                       color="white"
-                      _hover={{
-                        bg: "red.500",
-                      }}
-                      onClick={() => handleDelete(product)}
+                      _hover={{ bg: "red.500" }}
+                      onClick={() => handleDelete(product.id)}
                     >
                       Delete
                     </Button>
@@ -160,20 +188,110 @@ const DashboardProducts = () => {
         </Table>
       </TableContainer>
 
-      <CustomEditModal
-        isOpen={isEditOpen}
-        onClose={onEditClose}
-        initialFocusRef={initialRef}
-        finalFocusRef={finalRef}
-        product={selectedProduct}
-        onSave={EditUpdate}
+      <AlertDialog
+        isOpen={isOpen}
+        alertName="Delete Product"
+        alertContent="Are you sure you want to delete this Product?"
+        mainButton="Destroy"
+        onClose={onClose}
+        onDestroyHandler={onDestroyHandler}
+        isLoading={isDeleting}
       />
-      <CustomDeleteModal
-        isOpen={isDeleteOpen}
-        onClose={onDeleteClose}
-        onConfirm={confirmDelete}
-        product={productToDelete}
-      />
+      <CustomModal
+        isOpen={isModalOpen}
+        onClose={onModalClose}
+        onEditUpdate={onSubmitHandler}
+      >
+        <FormControl>
+          <FormLabel>Title</FormLabel>
+          <Input
+            name="title"
+            value={productToEdit?.title}
+            onChange={onChangeHandler}
+          />
+        </FormControl>
+        <FormControl mt={4}>
+          <FormLabel>Description</FormLabel>
+          <Textarea
+            value={productToEdit?.description}
+            resize={"none"}
+            minH={"100px"}
+            maxH={"230px"}
+            name="description"
+            onChange={onChangeHandler}
+          />
+        </FormControl>
+        <FormControl mt={4}>
+          <FormLabel>Price</FormLabel>
+          <Input
+            type="number"
+            name="price"
+            onChange={onChangeHandler}
+            value={productToEdit?.price}
+          />
+        </FormControl>
+        <FormControl mt={4}>
+          <FormLabel>Stock</FormLabel>
+          <Input
+            type="number"
+            name="stock"
+            onChange={onChangeHandler}
+            value={productToEdit?.stock}
+          />
+        </FormControl>
+        <FormControl mt={4}>
+          <FormLabel>Thumbnail</FormLabel>
+          <Stack direction="row" align="center">
+            <Button
+              as="label"
+              htmlFor="file-upload"
+              bgColor={"purple.500"}
+              color="white"
+              cursor="pointer"
+              _hover={{
+                bg: "purple.300",
+              }}
+            >
+              Choose File
+            </Button>
+            <Input
+              name="thumbnail"
+              id="file-upload"
+              type="file"
+              display="none"
+              onChange={handleFileChange}
+            />
+          </Stack>
+          <Box mt={2}>
+            <Image
+              boxSize="100px"
+              src={
+                selectedFile ||
+                `${import.meta.env.VITE_SERVER_URL}${
+                  productToEdit?.thumbnail.data?.attributes?.url
+                }`
+              }
+              alt="Product Thumbnail"
+            />
+          </Box>
+        </FormControl>
+        <FormControl mt={4}>
+          <FormLabel>Categories</FormLabel>
+          <CheckboxGroup
+            defaultValue={productToEdit?.categories.data.map((category) =>
+              category.id.toString()
+            )}
+          >
+            <Stack spacing={2}>
+              {categoriesList.map((category) => (
+                <Checkbox key={category.id} value={category.id.toString()}>
+                  {category.attributes.title}
+                </Checkbox>
+              ))}
+            </Stack>
+          </CheckboxGroup>
+        </FormControl>
+      </CustomModal>
     </>
   );
 };
