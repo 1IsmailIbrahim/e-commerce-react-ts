@@ -33,7 +33,7 @@ import {
 } from "react-icons/fi";
 import { IconType } from "react-icons";
 import { ReactText } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { NavLink as RouterLink } from "react-router-dom";
 import ColorModeToggle from "../../components/ColorModeToggle";
 
 interface LinkItemProps {

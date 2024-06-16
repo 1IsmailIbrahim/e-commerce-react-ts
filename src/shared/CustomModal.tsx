@@ -15,6 +15,7 @@ interface ICustomModal {
   onClose: () => void;
   children: ReactNode;
   onEditUpdate: () => void;
+  isLoading: boolean;
 }
 
 const CustomModal = ({
@@ -22,6 +23,7 @@ const CustomModal = ({
   onClose,
   children,
   onEditUpdate,
+  isLoading,
 }: ICustomModal) => {
   return (
     <ChakraModal size={"xl"} isOpen={isOpen} onClose={onClose}>
@@ -39,6 +41,7 @@ const CustomModal = ({
             }}
             mr={3}
             onClick={onEditUpdate}
+            isLoading={isLoading}
           >
             Save
           </Button>

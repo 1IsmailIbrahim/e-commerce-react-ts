@@ -21,6 +21,7 @@ import {
   Stack,
   Checkbox,
   Box,
+  useToast,
 } from "@chakra-ui/react";
 import TableSkeleton from "../../components/TableSkeleton";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -28,37 +29,52 @@ import { ICategory, IProduct, IProductAttributes } from "../../interfaces";
 import {
   useGetDashboardProductsQuery,
   useDeleteDashboardProductMutation,
+  useEditProductMutation,
+  useGetCategoriesQuery,
+  useAddDashboardProductMutation,
 } from "../../app/services/productsApiSlice";
 import AlertDialog from "../../shared/AlertDialog";
 import CustomModal from "../../shared/CustomModal";
-import axios from "axios";
 
 const DashboardProducts = () => {
   const { data, isLoading } = useGetDashboardProductsQuery();
+  const { data: categories } = useGetCategoriesQuery();
   const [deleteProduct, { isLoading: isDeleting, isSuccess }] =
     useDeleteDashboardProductMutation();
+  const [
+    updateProduct,
+    { isLoading: isUpdating, isSuccess: isUpdatingSuccess },
+  ] = useEditProductMutation();
+  const [postProduct, { isLoading: isPosting, isSuccess: isPostingSuccess }] =
+    useAddDashboardProductMutation();
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isModalOpen,
     onOpen: onModalOpen,
     onClose: onModalClose,
   } = useDisclosure();
-  const [productToDelete, setProductToDelete] = useState<number | null>(null);
-  const [productToEdit, setProductToEdit] = useState<IProductAttributes | null>(
-    null
-  );
-  const [categoriesList, setCategoriesList] = useState<ICategory[]>([]);
-  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const {
+    isOpen: isAddModalOpen,
+    onOpen: onAddModalOpen,
+    onClose: onAddModalClose,
+  } = useDisclosure();
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      const response = await axios.get(
-        `${import.meta.env.VITE_SERVER_URL}/api/categories`
-      );
-      setCategoriesList(response.data.data);
-    };
-    fetchCategories();
-  }, []);
+  const [productToDelete, setProductToDelete] = useState<number | null>(null);
+  const [productToEdit, setProductToEdit] = useState<IProduct | null>(null);
+  const [newProduct, setNewProduct] = useState<IProductAttributes>({
+    title: "",
+    description: "",
+    price: 0,
+    stock: undefined,
+    thumbnail: { data: { attributes: { url: "" } } },
+    categories: { data: [] },
+  });
+
+  const [categoriesList, setCategoriesList] = useState<ICategory[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFilePic, setSelectedFilePic] = useState<string | null>(null);
+  const toast = useToast();
 
   // ** Delete Handlers
   const handleDelete = (id: number) => {
@@ -73,14 +89,41 @@ const DashboardProducts = () => {
   };
 
   useEffect(() => {
+    if (categories) {
+      setCategoriesList(categories?.data);
+    }
     if (isSuccess) {
       setProductToDelete(null);
       onClose();
     }
-  }, [isSuccess]);
+    if (isUpdatingSuccess) {
+      setProductToEdit(null);
+      onModalClose();
+    }
+    if (isPostingSuccess) {
+      setNewProduct({
+        title: "",
+        description: "",
+        price: 0,
+        stock: undefined,
+        thumbnail: { data: { attributes: { url: "" } } },
+        categories: { data: [] },
+      });
+      setSelectedFile(null);
+      onAddModalClose();
+    }
+  }, [
+    categories,
+    isSuccess,
+    isUpdatingSuccess,
+    isPostingSuccess,
+    onClose,
+    onModalClose,
+    onAddModalClose,
+  ]);
 
   // ** Edit Handlers
-  const handleEdit = (product: IProductAttributes) => {
+  const handleEdit = (product: IProduct) => {
     setProductToEdit(product);
     onModalOpen();
   };
@@ -92,26 +135,215 @@ const DashboardProducts = () => {
     if (productToEdit) {
       setProductToEdit({
         ...productToEdit,
-        [name]: value,
+        attributes: {
+          ...productToEdit.attributes,
+          [name]: value,
+        },
       });
     }
   };
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+
+  const handleCategoriesChange = (val: (string | number)[]) => {
+    if (productToEdit) {
+      const selectedCategories = categoriesList.filter((category) =>
+        val.includes(category.id.toString())
+      ) as ICategory[];
+      setProductToEdit({
+        ...productToEdit,
+        attributes: {
+          ...productToEdit.attributes,
+          categories: {
+            data: selectedCategories,
+          },
+        },
+      });
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
-      setSelectedFile(URL.createObjectURL(file));
+      setSelectedFile(file);
+      setSelectedFilePic(URL.createObjectURL(file));
+      if (productToEdit) {
+        const url = URL.createObjectURL(file);
+        setProductToEdit({
+          ...productToEdit,
+          attributes: {
+            ...productToEdit.attributes,
+            thumbnail: {
+              data: {
+                attributes: {
+                  url: url,
+                },
+              },
+            },
+          },
+        });
+      }
     }
   };
 
   const onSubmitHandler = () => {
-    console.log(productToEdit);
+    if (productToEdit !== null) {
+      const formData = new FormData();
+      formData.append(
+        "data",
+        JSON.stringify({
+          title: productToEdit.attributes.title,
+          description: productToEdit.attributes.description,
+          price: productToEdit.attributes.price,
+          stock: productToEdit.attributes.stock,
+          categories: {
+            data: productToEdit.attributes.categories.data.map((category) => ({
+              id: category.id,
+            })),
+          },
+        })
+      );
+      if (selectedFile) {
+        formData.append("files.thumbnail", selectedFile);
+      }
+      updateProduct({
+        id: productToEdit.id,
+        body: formData,
+      })
+        .unwrap()
+        .then(() => {
+          setProductToEdit(null);
+          setSelectedFile(null);
+          onModalClose();
+          toast({
+            title: "Product Updated Successfully",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+            position: "top",
+          });
+        })
+        .catch((error) => {
+          console.error("Update product failed", error);
+          toast({
+            title: error.data?.error?.message,
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+            position: "top",
+          });
+        });
+    }
+  };
+
+  const handleAddProductChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setNewProduct({
+      ...newProduct,
+      [name]: name === "price" || name === "stock" ? Number(value) : value,
+    });
+  };
+
+  const handleAddProductCategoriesChange = (val: (string | number)[]) => {
+    const selectedCategories = categoriesList.filter((category) =>
+      val.includes(category.id.toString())
+    ) as ICategory[];
+    setNewProduct({
+      ...newProduct,
+      categories: {
+        data: selectedCategories,
+      },
+    });
+  };
+
+  const handleAddProductFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setSelectedFilePic(URL.createObjectURL(file));
+      setNewProduct({
+        ...newProduct,
+        thumbnail: {
+          data: {
+            attributes: {
+              url: URL.createObjectURL(file),
+            },
+          },
+        },
+      });
+    }
+  };
+
+  const handleAddProductSubmit = () => {
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        title: newProduct.title,
+        description: newProduct.description,
+        price: newProduct.price,
+        stock: newProduct.stock,
+        categories: {
+          data: newProduct.categories.data.map((category) => ({
+            id: category.id,
+          })),
+        },
+      })
+    );
+    if (selectedFile) {
+      formData.append("files.thumbnail", selectedFile);
+    }
+    postProduct(formData)
+      .unwrap()
+      .then(() => {
+        setNewProduct({
+          title: "",
+          description: "",
+          price: 0,
+          stock: undefined,
+          thumbnail: { data: { attributes: { url: "" } } },
+          categories: { data: [] },
+        });
+        setSelectedFile(null);
+        onAddModalClose();
+        toast({
+          title: "Product Added Successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+      })
+      .catch((error) => {
+        console.error("Add product failed", error);
+        toast({
+          title: error.data?.error?.message,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+      });
   };
 
   if (isLoading) {
     return <TableSkeleton />;
   }
+
   return (
     <>
+      <Button
+        size="md"
+        bg="green.500"
+        color="white"
+        _hover={{ bg: "green.300" }}
+        mb={4}
+        onClick={onAddModalOpen}
+      >
+        Add Product
+      </Button>
       <TableContainer>
         <Table variant="simple">
           <TableCaption fontSize={"xl"}>All Our Products</TableCaption>
@@ -162,7 +394,7 @@ const DashboardProducts = () => {
                       color="white"
                       _hover={{ bg: "purple.300" }}
                       mr={2}
-                      onClick={() => handleEdit(product.attributes)}
+                      onClick={() => handleEdit(product)}
                     >
                       Edit
                     </Button>
@@ -187,7 +419,6 @@ const DashboardProducts = () => {
           </Tfoot>
         </Table>
       </TableContainer>
-
       <AlertDialog
         isOpen={isOpen}
         alertName="Delete Product"
@@ -198,22 +429,119 @@ const DashboardProducts = () => {
         isLoading={isDeleting}
       />
       <CustomModal
-        isOpen={isModalOpen}
-        onClose={onModalClose}
-        onEditUpdate={onSubmitHandler}
+        isOpen={isAddModalOpen}
+        onClose={onAddModalClose}
+        onEditUpdate={handleAddProductSubmit}
+        isLoading={isPosting}
       >
         <FormControl>
           <FormLabel>Title</FormLabel>
           <Input
             name="title"
-            value={productToEdit?.title}
+            value={newProduct.title}
+            onChange={handleAddProductChange}
+          />
+        </FormControl>
+        <FormControl mt={4}>
+          <FormLabel>Description</FormLabel>
+          <Textarea
+            value={newProduct.description}
+            resize={"none"}
+            minH={"100px"}
+            maxH={"230px"}
+            name="description"
+            onChange={handleAddProductChange}
+          />
+        </FormControl>
+        <FormControl mt={4}>
+          <FormLabel>Price</FormLabel>
+          <Input
+            name="price"
+            onChange={handleAddProductChange}
+            value={newProduct.price}
+          />
+        </FormControl>
+        <FormControl mt={4}>
+          <FormLabel>Stock</FormLabel>
+          <Input
+            type="number"
+            name="stock"
+            onChange={handleAddProductChange}
+            value={newProduct.stock}
+          />
+        </FormControl>
+        <FormControl mt={4}>
+          <FormLabel>Thumbnail</FormLabel>
+          <Stack direction="row" align="center">
+            <Button
+              as="label"
+              htmlFor="add-file-upload"
+              bgColor={"purple.500"}
+              color="white"
+              cursor="pointer"
+              _hover={{
+                bg: "purple.300",
+              }}
+            >
+              Choose File
+            </Button>
+            <Input
+              name="thumbnail"
+              id="add-file-upload"
+              type="file"
+              display="none"
+              onChange={handleAddProductFileChange}
+            />
+          </Stack>
+          <Box mt={2}>
+            <Image
+              boxSize="100px"
+              src={
+                selectedFilePic ||
+                `${import.meta.env.VITE_SERVER_URL}${
+                  newProduct.thumbnail.data?.attributes?.url
+                }`
+              }
+              alt="Product Thumbnail"
+            />
+          </Box>
+        </FormControl>
+        <FormControl mt={4}>
+          <FormLabel>Categories</FormLabel>
+          <CheckboxGroup
+            onChange={handleAddProductCategoriesChange}
+            defaultValue={newProduct.categories.data.map((category) =>
+              category.id.toString()
+            )}
+          >
+            <Stack spacing={2}>
+              {categoriesList.map((category) => (
+                <Checkbox key={category.id} value={category.id.toString()}>
+                  {category.attributes.title}
+                </Checkbox>
+              ))}
+            </Stack>
+          </CheckboxGroup>
+        </FormControl>
+      </CustomModal>
+      <CustomModal
+        isOpen={isModalOpen}
+        onClose={onModalClose}
+        onEditUpdate={onSubmitHandler}
+        isLoading={isUpdating}
+      >
+        <FormControl>
+          <FormLabel>Title</FormLabel>
+          <Input
+            name="title"
+            value={productToEdit?.attributes.title}
             onChange={onChangeHandler}
           />
         </FormControl>
         <FormControl mt={4}>
           <FormLabel>Description</FormLabel>
           <Textarea
-            value={productToEdit?.description}
+            value={productToEdit?.attributes.description}
             resize={"none"}
             minH={"100px"}
             maxH={"230px"}
@@ -227,7 +555,7 @@ const DashboardProducts = () => {
             type="number"
             name="price"
             onChange={onChangeHandler}
-            value={productToEdit?.price}
+            value={productToEdit?.attributes.price}
           />
         </FormControl>
         <FormControl mt={4}>
@@ -236,7 +564,7 @@ const DashboardProducts = () => {
             type="number"
             name="stock"
             onChange={onChangeHandler}
-            value={productToEdit?.stock}
+            value={productToEdit?.attributes.stock}
           />
         </FormControl>
         <FormControl mt={4}>
@@ -266,9 +594,9 @@ const DashboardProducts = () => {
             <Image
               boxSize="100px"
               src={
-                selectedFile ||
+                selectedFilePic ||
                 `${import.meta.env.VITE_SERVER_URL}${
-                  productToEdit?.thumbnail.data?.attributes?.url
+                  productToEdit?.attributes.thumbnail.data?.attributes?.url
                 }`
               }
               alt="Product Thumbnail"
@@ -278,8 +606,9 @@ const DashboardProducts = () => {
         <FormControl mt={4}>
           <FormLabel>Categories</FormLabel>
           <CheckboxGroup
-            defaultValue={productToEdit?.categories.data.map((category) =>
-              category.id.toString()
+            onChange={handleCategoriesChange}
+            defaultValue={productToEdit?.attributes.categories.data.map(
+              (category) => category.id.toString()
             )}
           >
             <Stack spacing={2}>
