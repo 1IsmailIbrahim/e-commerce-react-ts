@@ -6,6 +6,7 @@ import theme from "./components/theme/index.ts";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { Provider } from "react-redux";
 import { store } from "./app/store.ts";
+import InternetConnectionProvider from "./provider/InternetConnection.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,12 +17,14 @@ const queryClient = new QueryClient({
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <Provider store={store}>
-    <QueryClientProvider client={queryClient}>
-      <ChakraProvider theme={theme}>
-        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-        <App />
-      </ChakraProvider>
-    </QueryClientProvider>
-  </Provider>
+  <QueryClientProvider client={queryClient}>
+    <Provider store={store}>
+      <InternetConnectionProvider>
+        <ChakraProvider theme={theme}>
+          <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+          <App />
+        </ChakraProvider>
+      </InternetConnectionProvider>
+    </Provider>
+  </QueryClientProvider>
 );

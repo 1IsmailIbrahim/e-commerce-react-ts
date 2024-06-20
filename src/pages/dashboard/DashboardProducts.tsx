@@ -30,13 +30,16 @@ import {
   useGetDashboardProductsQuery,
   useDeleteDashboardProductMutation,
   useEditProductMutation,
-  useGetCategoriesQuery,
   useAddDashboardProductMutation,
 } from "../../app/services/productsApiSlice";
 import AlertDialog from "../../shared/AlertDialog";
 import CustomModal from "../../shared/CustomModal";
+import { useGetCategoriesQuery } from "../../app/services/categoriesApiSlice";
+import { useSelector } from "react-redux";
+import { selectNetwork } from "../../app/features/networkSlice";
 
 const DashboardProducts = () => {
+  const { isOnline } = useSelector(selectNetwork);
   const { data, isLoading } = useGetDashboardProductsQuery();
   const { data: categories } = useGetCategoriesQuery();
   const [deleteProduct, { isLoading: isDeleting, isSuccess }] =
@@ -328,7 +331,7 @@ const DashboardProducts = () => {
       });
   };
 
-  if (isLoading) {
+  if (isLoading || !isOnline) {
     return <TableSkeleton />;
   }
 

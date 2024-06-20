@@ -37,3 +37,20 @@ export interface IProductsResponse {
     };
   };
 }
+
+export interface ICategoryResponse {
+  data: ICategory[];
+}
+
+export interface IUser {
+  id: number;
+  attributes: {
+    username: string;
+    email: string;
+  };
+}
+
+export interface IUsersResponse {
+  data: IUser[];
+  length: number;
+}

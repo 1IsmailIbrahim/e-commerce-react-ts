@@ -7,6 +7,9 @@ import globalSlice from "./features/globalSlice";
 import storage from "redux-persist/lib/storage";
 import { PersistPartial } from "redux-persist/es/persistReducer";
 import { productsApiSlice } from "./services/productsApiSlice";
+import { categoriesApiSlice } from "./services/categoriesApiSlice";
+import { usersApiSlice } from "./services/usersApiSlice";
+import networkSlice from "./features/networkSlice";
 
 interface IPersistCart {
   key: string;
@@ -23,18 +26,29 @@ const persistedCart = persistReducer(persistCartConfig, cartSlice);
 export const store: EnhancedStore<{
   cart: ICart & PersistPartial;
   global: ReturnType<typeof globalSlice>;
+  network: ReturnType<typeof networkSlice>;
   [LoginApiSlice.reducerPath]: ReturnType<typeof LoginApiSlice.reducer>;
+  [productsApiSlice.reducerPath]: ReturnType<typeof productsApiSlice.reducer>;
+  [categoriesApiSlice.reducerPath]: ReturnType<
+    typeof categoriesApiSlice.reducer
+  >;
+  [usersApiSlice.reducerPath]: ReturnType<typeof usersApiSlice.reducer>;
 }> = configureStore({
   reducer: {
     cart: persistedCart,
     global: globalSlice,
+    network: networkSlice,
     [LoginApiSlice.reducerPath]: LoginApiSlice.reducer,
     [productsApiSlice.reducerPath]: productsApiSlice.reducer,
+    [categoriesApiSlice.reducerPath]: categoriesApiSlice.reducer,
+    [usersApiSlice.reducerPath]: usersApiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       LoginApiSlice.middleware,
-      productsApiSlice.middleware
+      productsApiSlice.middleware,
+      categoriesApiSlice.middleware,
+      usersApiSlice.middleware
     ),
 });
 

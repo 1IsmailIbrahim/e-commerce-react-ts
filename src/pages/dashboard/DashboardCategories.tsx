@@ -14,19 +14,22 @@ import {
   ModalBody,
   ModalCloseButton,
   useColorMode,
+  useToast,
 } from "@chakra-ui/react";
 import { ICategory } from "../../interfaces";
+
+import { useState } from "react";
 import {
   useGetCategoriesQuery,
   useAddCategoryMutation,
   useEditCategoriesMutation,
-} from "../../app/services/productsApiSlice";
-import { useState } from "react";
+} from "../../app/services/categoriesApiSlice";
 
 const DashboardCategories = () => {
   const { colorMode } = useColorMode();
   const { data: categories, isLoading } = useGetCategoriesQuery();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
 
   const [categoryTitle, setCategoryTitle] = useState<string>("");
   const [editCategoryId, setEditCategoryId] = useState<number | null>(null);
@@ -38,14 +41,36 @@ const DashboardCategories = () => {
 
   const handleAddCategory = async () => {
     if (!categoryTitle.trim()) return;
-
-    try {
-      await addCategory({ title: categoryTitle });
-      onClose();
-      setCategoryTitle("");
-    } catch (error) {
-      console.error("Failed to add category:", error);
-    }
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        title: categoryTitle,
+      })
+    );
+    addCategory({ body: formData })
+      .unwrap()
+      .then(() => {
+        setCategoryTitle("");
+        onClose();
+        toast({
+          title: "Category Added Successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+      })
+      .catch((error) => {
+        console.error("Update product failed", error);
+        toast({
+          title: error.data?.error?.message,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+      });
   };
 
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,22 +85,42 @@ const DashboardCategories = () => {
 
   const handleSaveCategory = async () => {
     if (!editCategoryId || !categoryTitle.trim()) return;
-
-    try {
-      await editCategoryMutation({ id: editCategoryId, title: categoryTitle });
-      onClose();
-    } catch (error) {
-      console.error("Failed to edit category:", error);
-    }
+    const formData = new FormData();
+    formData.append(
+      "data",
+      JSON.stringify({
+        title: categoryTitle,
+      })
+    );
+    editCategoryMutation({ id: editCategoryId, body: formData })
+      .unwrap()
+      .then(() => {
+        setCategoryTitle("");
+        setEditCategoryId(null);
+        onClose();
+        toast({
+          title: "Category Updated Successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+      })
+      .catch((error) => {
+        console.error("Update product failed", error);
+        toast({
+          title: error.data?.error?.message,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+      });
   };
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
-
-  // if (isError) {
-  //   return <div>Error: {error?.message}</div>;
-  // }
 
   return (
     <Box p={4}>

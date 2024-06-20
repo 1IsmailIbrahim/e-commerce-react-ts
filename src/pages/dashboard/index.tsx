@@ -1,24 +1,16 @@
-import {
-  Box,
-  Flex,
-  Heading,
-  Stat,
-  StatLabel,
-  StatNumber,
-  Spinner,
-  useColorMode,
-} from "@chakra-ui/react";
+import { Box, Flex, Heading, Spinner } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import {
-  useGetDashboardProductsQuery,
-  useGetCategoriesQuery,
-} from "../../app/services/productsApiSlice";
+import { useGetDashboardProductsQuery } from "../../app/services/productsApiSlice";
 import { ICategory, IProduct } from "../../interfaces";
+import StatCard from "./StatCard";
+import { useGetCategoriesQuery } from "../../app/services/categoriesApiSlice";
+import { useGetUsersQuery } from "../../app/services/usersApiSlice";
 
 const DashboardStats = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [productsCount, setProductsCount] = useState<number>(0);
   const [categoriesCount, setCategoriesCount] = useState<number>(0);
+  const [usersCount, setUsersCount] = useState<number>(0);
   const [productsCountByCategory, setProductsCountByCategory] = useState<
     Record<number, number>
   >({});
@@ -27,6 +19,7 @@ const DashboardStats = () => {
     useGetDashboardProductsQuery();
   const { data: categoriesData, isLoading: categoriesLoading } =
     useGetCategoriesQuery();
+  const { data: usersData, isLoading: usersLoading } = useGetUsersQuery();
 
   useEffect(() => {
     if (!productsLoading && productsData) {
@@ -43,7 +36,6 @@ const DashboardStats = () => {
           }
         });
       });
-
       setProductsCountByCategory(countByCategory);
     }
   }, [productsLoading, productsData]);
@@ -55,15 +47,21 @@ const DashboardStats = () => {
   }, [categoriesLoading, categoriesData]);
 
   useEffect(() => {
-    if (!productsLoading && !categoriesLoading) {
+    if (!usersLoading && usersData) {
+      setUsersCount(usersData?.length);
+    }
+  }, [usersLoading, usersData]);
+
+  useEffect(() => {
+    if (!productsLoading && !categoriesLoading && !usersLoading) {
       setLoading(false);
     }
-  }, [productsLoading, categoriesLoading]);
+  }, [productsLoading, categoriesLoading, usersLoading]);
 
   if (loading) {
     return (
       <Box p={4} textAlign="center">
-        <Spinner size="xl" color="blue.500" />
+        <Spinner size="xl" color="purple.500" />
       </Box>
     );
   }
@@ -71,11 +69,21 @@ const DashboardStats = () => {
   return (
     <Box p={4}>
       <Heading size="md" mb={4}>
-        Website Statistics
+        Statistics
       </Heading>
       <Flex justifyContent="space-between" flexWrap="wrap">
-        <StatCard label="Total Products" value={productsCount} />
+        <Box w={"full"}>
+          <StatCard label="Total Users" value={usersCount} />
+          <StatCard label="Total Products" value={productsCount} />
+        </Box>
+      </Flex>
+      <Heading size="md" mb={4}>
+        Categories
+      </Heading>
+      <Box w={"full"}>
         <StatCard label="Total Categories" value={categoriesCount} />
+      </Box>
+      <Flex>
         {categoriesData?.data.map((category: ICategory) => (
           <StatCard
             key={category.id}
@@ -85,32 +93,6 @@ const DashboardStats = () => {
         ))}
       </Flex>
     </Box>
-  );
-};
-
-const StatCard = ({ label, value }: { label: string; value: number }) => {
-  const { colorMode } = useColorMode();
-
-  return (
-    <Stat
-      flexBasis={{ base: "100%", sm: "45%", md: "30%", lg: "20%" }}
-      mr={{ base: 0, sm: 4 }}
-      mb={4}
-      bg={colorMode === "light" ? "white" : "gray.700"}
-      boxShadow="md"
-      p={4}
-      rounded="md"
-      borderWidth={2}
-      borderColor="purple.400"
-      _hover={{
-        bg: colorMode === "light" ? "purple.50" : "purple.900",
-      }}
-    >
-      <StatLabel fontSize="lg" fontWeight="bold" mb={2}>
-        {label}
-      </StatLabel>
-      <StatNumber fontSize="2xl">{value}</StatNumber>
-    </Stat>
   );
 };
 
