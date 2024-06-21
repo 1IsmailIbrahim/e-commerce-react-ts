@@ -35,6 +35,7 @@ import { IconType } from "react-icons";
 import { ReactText } from "react";
 import { NavLink as RouterLink } from "react-router-dom";
 import ColorModeToggle from "../../components/ColorModeToggle";
+import CookieService from "../../services/CookieService";
 
 interface LinkItemProps {
   to: string;
@@ -154,7 +155,17 @@ const NavItem = ({ to, icon, children, ...rest }: NavItemProps) => {
 interface MobileProps extends FlexProps {
   onOpen: () => void;
 }
+
 const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
+  const encodedData = CookieService.get("data");
+  console.log(encodedData);
+
+  const handleSignOut = () => {
+    CookieService.remove("data");
+    CookieService.remove("jwt");
+    CookieService.remove("role");
+    location.replace("/");
+  };
   return (
     <Flex
       ml={{ base: 0, md: 60 }}
@@ -193,19 +204,16 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               _focus={{ boxShadow: "none" }}
             >
               <HStack>
-                <Avatar
-                  size={"sm"}
-                  src={
-                    "https://images.unsplash.com/photo-1619946794135-5bc917a27793?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9"
-                  }
-                />
+                <Avatar size={"sm"} bg="purple.500" />
                 <VStack
                   display={{ base: "none", md: "flex" }}
                   alignItems="flex-start"
                   spacing="1px"
                   ml="2"
                 >
-                  <Text fontSize="sm">Justina Clark</Text>
+                  <Text fontSize="sm">
+                    {encodedData && encodedData?.username}
+                  </Text>
                   <Text fontSize="xs" color="gray.600">
                     Admin
                   </Text>
@@ -223,7 +231,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               <MenuItem>Settings</MenuItem>
               <MenuItem>Billing</MenuItem>
               <MenuDivider />
-              <MenuItem>Sign out</MenuItem>
+              <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
             </MenuList>
           </Menu>
         </Flex>

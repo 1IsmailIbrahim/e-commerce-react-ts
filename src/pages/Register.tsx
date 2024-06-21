@@ -27,7 +27,7 @@ const RegisterPage = () => {
     username: "",
     email: "",
     password: "",
-    role: "user",
+    admin: false,
   });
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [isEmail, setIsEmail] = useState(false);
@@ -38,18 +38,27 @@ const RegisterPage = () => {
   const passwordRegex = /^.{6,}$/;
   const toast = useToast();
 
-  // Handlers
   const onChangeHandler = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setUser({ ...user, [name]: value });
-    if (name === "email") {
-      setIsEmail(false);
-    } else if (name === "password") {
-      setIsPassword(false);
-    } else if (name === "username") {
-      setIsUsername(false);
+    if (name === "role") {
+      setUser({ ...user, admin: value === "true" }); // Convert string to boolean
+    } else {
+      setUser({ ...user, [name]: value });
+      switch (name) {
+        case "email":
+          setIsEmail(false);
+          break;
+        case "password":
+          setIsPassword(false);
+          break;
+        case "username":
+          setIsUsername(false);
+          break;
+        default:
+          break;
+      }
     }
   };
 
@@ -71,6 +80,7 @@ const RegisterPage = () => {
   const onSubmitHandler = async (e: FormEvent<HTMLDivElement>) => {
     e.preventDefault();
 
+    // Validate inputs
     if (!emailRegex.test(user.email)) {
       setIsEmail(true);
       return;
@@ -99,18 +109,22 @@ const RegisterPage = () => {
     const options = { path: "/", expires: date };
 
     try {
+      // Perform registration mutation
       const response = await userRegister(user).unwrap();
       CookieService.set("jwt", response.jwt, options);
+      // CookieService.set("role", JSON.stringify(user), options);
+      CookieService.set("data", response.user, options);
       toast({
         title: "Registration successful",
         status: "success",
         duration: 1500,
         isClosable: true,
       });
+
       setTimeout(() => {
-        setUser({ username: "", email: "", password: "", role: "user" });
+        setUser({ username: "", email: "", password: "", admin: false });
         setConfirmPassword("");
-        location.replace("/");
+        window.location.replace("/");
       }, 1500);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -123,7 +137,9 @@ const RegisterPage = () => {
       });
     }
   };
+
   console.log(user);
+
   return (
     <Stack pt={20} direction={{ base: "column", md: "row" }}>
       <Flex p={8} flex={1} align={"center"} justify={"center"}>
@@ -216,13 +232,13 @@ const RegisterPage = () => {
             <FormControl id="role">
               <FormLabel>Role</FormLabel>
               <Select
-                value={user.role}
+                value={user.admin ? "true" : "false"} // Display as string
                 name="role"
                 onChange={onChangeHandler}
                 focusBorderColor="#9f7aea"
               >
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
+                <option value="false">User</option>
+                <option value="true">Admin</option>
               </Select>
             </FormControl>
             <Stack spacing={6}>
@@ -250,7 +266,7 @@ const RegisterPage = () => {
                   Already have an account?
                 </Box>
                 <Link
-                  onClick={() => location.replace("/login")}
+                  onClick={() => window.location.replace("/login")}
                   color={"blue.500"}
                 >
                   Sign in

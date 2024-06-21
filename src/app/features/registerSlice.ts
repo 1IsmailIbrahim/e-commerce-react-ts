@@ -3,6 +3,7 @@ interface IUser {
   email: string;
   username: string;
   password: string;
+  admin: boolean;
 }
 
 interface IRegisterResponse {
@@ -11,6 +12,7 @@ interface IRegisterResponse {
     id: number;
     username: string;
     email: string;
+    admin: boolean;
   };
 }
 export const RegisterApiSlice = createApi({

@@ -12,7 +12,7 @@ class CookieService implements ICookieService {
     return cookies.get(name);
   }
 
-  set(name: string, value: string, options?: CookieSetOptions): void {
+  set(name: string, value: unknown, options?: CookieSetOptions): void {
     return cookies.set(name, value, options);
   }
 

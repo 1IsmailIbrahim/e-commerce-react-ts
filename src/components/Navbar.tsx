@@ -87,6 +87,7 @@ const Navbar = () => {
     }
   };
   const onLogout = () => {
+    CookieService.remove("data");
     CookieService.remove("jwt");
     CookieService.remove("role");
     handleLinkClick();

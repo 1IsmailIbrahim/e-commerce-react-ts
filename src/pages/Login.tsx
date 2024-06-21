@@ -77,6 +77,7 @@ const LoginPage = () => {
       const response = await userLogin(user).unwrap();
       console.log("Login successful:", response);
       CookieService.set("jwt", response.jwt, options);
+      CookieService.set("data", JSON.stringify(response.user), options);
       toast({
         title: "Login successful",
         status: "success",

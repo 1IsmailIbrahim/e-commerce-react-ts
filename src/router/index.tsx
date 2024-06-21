@@ -23,7 +23,8 @@ import RegisterPage from "../pages/Register";
 
 const token = CookieService.get("jwt");
 const test = token ? true : false;
-
+const encodedData = CookieService.get("data");
+console.log(encodedData?.admin);
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -62,9 +63,30 @@ const router = createBrowserRouter(
         element={<DashboardLayout children={undefined} />}
         errorElement={<ErrorHandler />}
       >
-        <Route index element={<Dashboard />} />
-        <Route path="products" element={<DashboardProducts />} />
-        <Route path="categories" element={<DashboardCategories />} />
+        <Route
+          index
+          element={
+            <ProtectedRoute isAllowed={encodedData?.admin} redirectPath="/">
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="products"
+          element={
+            <ProtectedRoute isAllowed={encodedData?.admin} redirectPath="/">
+              <DashboardProducts />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="categories"
+          element={
+            <ProtectedRoute isAllowed={encodedData?.admin} redirectPath="/">
+              <DashboardCategories />
+            </ProtectedRoute>
+          }
+        />
       </Route>
       {/* Login Page */}
       <Route
