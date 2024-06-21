@@ -19,6 +19,7 @@ import Dashboard from "../pages/dashboard";
 import DashboardLayout from "../pages/dashboard/DashboardLayout";
 import DashboardProducts from "../pages/dashboard/DashboardProducts";
 import DashboardCategories from "../pages/dashboard/DashboardCategories";
+import RegisterPage from "../pages/Register";
 
 const token = CookieService.get("jwt");
 const test = token ? true : false;
@@ -71,6 +72,15 @@ const router = createBrowserRouter(
         element={
           <ProtectedRoute isAllowed={!test} redirectPath="/">
             <LoginPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Register Page */}
+      <Route
+        path="/register"
+        element={
+          <ProtectedRoute isAllowed={!test} redirectPath="/">
+            <RegisterPage />
           </ProtectedRoute>
         }
       />

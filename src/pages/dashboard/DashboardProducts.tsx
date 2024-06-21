@@ -26,6 +26,9 @@ import {
 import TableSkeleton from "../../components/TableSkeleton";
 import { ChangeEvent, useEffect, useState } from "react";
 import { ICategory, IProduct, IProductAttributes } from "../../interfaces";
+import { FaRegEdit } from "react-icons/fa";
+import { MdDeleteForever } from "react-icons/md";
+import { GrFormView } from "react-icons/gr";
 import {
   useGetDashboardProductsQuery,
   useDeleteDashboardProductMutation,
@@ -37,6 +40,7 @@ import CustomModal from "../../shared/CustomModal";
 import { useGetCategoriesQuery } from "../../app/services/categoriesApiSlice";
 import { useSelector } from "react-redux";
 import { selectNetwork } from "../../app/features/networkSlice";
+import { Link } from "react-router-dom";
 
 const DashboardProducts = () => {
   const { isOnline } = useSelector(selectNetwork);
@@ -197,11 +201,9 @@ const DashboardProducts = () => {
           description: productToEdit.attributes.description,
           price: productToEdit.attributes.price,
           stock: productToEdit.attributes.stock,
-          categories: {
-            data: productToEdit.attributes.categories.data.map((category) => ({
-              id: category.id,
-            })),
-          },
+          categories: productToEdit.attributes.categories.data.map(
+            (category) => category.id
+          ),
         })
       );
       if (selectedFile) {
@@ -288,11 +290,7 @@ const DashboardProducts = () => {
         description: newProduct.description,
         price: newProduct.price,
         stock: newProduct.stock,
-        categories: {
-          data: newProduct.categories.data.map((category) => ({
-            id: category.id,
-          })),
-        },
+        categories: newProduct.categories.data.map((category) => category.id),
       })
     );
     if (selectedFile) {
@@ -390,16 +388,15 @@ const DashboardProducts = () => {
                 <Td>{product.attributes.stock}</Td>
                 <Td>${product.attributes.price}</Td>
                 <Td>
-                  <Flex justifyContent={"flex-end"}>
+                  <Flex gap={1} justifyContent={"flex-end"}>
                     <Button
                       size="sm"
                       bg="purple.500"
                       color="white"
                       _hover={{ bg: "purple.300" }}
-                      mr={2}
                       onClick={() => handleEdit(product)}
                     >
-                      Edit
+                      <FaRegEdit />
                     </Button>
                     <Button
                       size="sm"
@@ -408,7 +405,18 @@ const DashboardProducts = () => {
                       _hover={{ bg: "red.500" }}
                       onClick={() => handleDelete(product.id)}
                     >
-                      Delete
+                      <MdDeleteForever />
+                    </Button>
+                    <Button
+                      as={Link}
+                      to={`/product/${product.id}`}
+                      size="sm"
+                      bg="green.400"
+                      color="white"
+                      _hover={{ bg: "green.300" }}
+                      onClick={() => handleDelete(product.id)}
+                    >
+                      <GrFormView />
                     </Button>
                   </Flex>
                 </Td>

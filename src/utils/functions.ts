@@ -1,4 +1,5 @@
 import { IProduct } from "../interfaces";
+import CookieService from "../services/CookieService";
 
 export const addItemToCart = (
   cartProducts: IProduct[],

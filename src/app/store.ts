@@ -10,6 +10,7 @@ import { productsApiSlice } from "./services/productsApiSlice";
 import { categoriesApiSlice } from "./services/categoriesApiSlice";
 import { usersApiSlice } from "./services/usersApiSlice";
 import networkSlice from "./features/networkSlice";
+import { RegisterApiSlice } from "./features/registerSlice";
 
 interface IPersistCart {
   key: string;
@@ -28,6 +29,7 @@ export const store: EnhancedStore<{
   global: ReturnType<typeof globalSlice>;
   network: ReturnType<typeof networkSlice>;
   [LoginApiSlice.reducerPath]: ReturnType<typeof LoginApiSlice.reducer>;
+  [RegisterApiSlice.reducerPath]: ReturnType<typeof RegisterApiSlice.reducer>;
   [productsApiSlice.reducerPath]: ReturnType<typeof productsApiSlice.reducer>;
   [categoriesApiSlice.reducerPath]: ReturnType<
     typeof categoriesApiSlice.reducer
@@ -39,6 +41,7 @@ export const store: EnhancedStore<{
     global: globalSlice,
     network: networkSlice,
     [LoginApiSlice.reducerPath]: LoginApiSlice.reducer,
+    [RegisterApiSlice.reducerPath]: RegisterApiSlice.reducer,
     [productsApiSlice.reducerPath]: productsApiSlice.reducer,
     [categoriesApiSlice.reducerPath]: categoriesApiSlice.reducer,
     [usersApiSlice.reducerPath]: usersApiSlice.reducer,
@@ -46,6 +49,7 @@ export const store: EnhancedStore<{
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       LoginApiSlice.middleware,
+      RegisterApiSlice.middleware,
       productsApiSlice.middleware,
       categoriesApiSlice.middleware,
       usersApiSlice.middleware

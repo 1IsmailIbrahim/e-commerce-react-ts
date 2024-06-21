@@ -78,7 +78,7 @@ const ProductDetailsPage = () => {
           rounded={"md"}
           alignItems={"center"}
           gap={3}
-          border={"1px solid #a8b5c8"}
+          border={".1px solid rgba(168, 181, 200,0.3)"}
           px={4}
           py={2}
           {...LinkStyles}
@@ -87,8 +87,14 @@ const ProductDetailsPage = () => {
           <Text>Back</Text>
         </Flex>
       </Flex>
-      <Card maxWidth={"5xl"} mx={"auto"} bg={"none"}>
-        <Flex gap={5}>
+      <Card
+        py={"50px"}
+        border={".1px solid rgba(168, 181, 200,0.3)"}
+        maxWidth={"5xl"}
+        mx={"auto"}
+        bg={"none"}
+      >
+        <Flex mx={"auto"} gap={5}>
           {thumbnailUrl && (
             <HoverImage
               thumbnailSrc={`${import.meta.env.VITE_SERVER_URL}${thumbnailUrl}`}

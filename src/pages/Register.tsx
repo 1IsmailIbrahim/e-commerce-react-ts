@@ -14,38 +14,53 @@ import {
   FormHelperText,
   useToast,
   Box,
+  Select,
 } from "@chakra-ui/react";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { useUserLoginMutation } from "../app/features/loginSlice";
 import CookieService from "../services/CookieService";
+import { useUserRegisterMutation } from "../app/features/registerSlice";
 
-const LoginPage = () => {
-  const [userLogin, { isLoading }] = useUserLoginMutation();
+const RegisterPage = () => {
+  const [userRegister, { isLoading }] = useUserRegisterMutation();
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [user, setUser] = useState({
-    identifier: "",
+    username: "",
+    email: "",
     password: "",
+    role: "user",
   });
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [isEmail, setIsEmail] = useState(false);
   const [isPassword, setIsPassword] = useState(false);
+  const [isConfirmPassword, setIsConfirmPassword] = useState(false);
+  const [isUsername, setIsUsername] = useState(false);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^.{6,}$/;
   const toast = useToast();
 
   // Handlers
-  const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+  const onChangeHandler = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setUser({ ...user, [name]: value });
-    if (name === "identifier") {
+    if (name === "email") {
       setIsEmail(false);
     } else if (name === "password") {
       setIsPassword(false);
+    } else if (name === "username") {
+      setIsUsername(false);
     }
+  };
+
+  const onConfirmPasswordChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    setConfirmPassword(e.target.value);
+    setIsConfirmPassword(false);
   };
 
   const onBlurHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (name === "identifier" && !emailRegex.test(value)) {
+    if (name === "email" && !emailRegex.test(value)) {
       setIsEmail(true);
     }
     if (name === "password" && !passwordRegex.test(value)) {
@@ -56,13 +71,23 @@ const LoginPage = () => {
   const onSubmitHandler = async (e: FormEvent<HTMLDivElement>) => {
     e.preventDefault();
 
-    if (!emailRegex.test(user.identifier)) {
+    if (!emailRegex.test(user.email)) {
       setIsEmail(true);
       return;
     }
 
     if (!passwordRegex.test(user.password)) {
       setIsPassword(true);
+      return;
+    }
+
+    if (user.password !== confirmPassword) {
+      setIsConfirmPassword(true);
+      return;
+    }
+
+    if (user.username.trim() === "") {
+      setIsUsername(true);
       return;
     }
 
@@ -74,44 +99,61 @@ const LoginPage = () => {
     const options = { path: "/", expires: date };
 
     try {
-      const response = await userLogin(user).unwrap();
-      console.log("Login successful:", response);
+      const response = await userRegister(user).unwrap();
       CookieService.set("jwt", response.jwt, options);
       toast({
-        title: "Login successful",
+        title: "Registration successful",
         status: "success",
         duration: 1500,
         isClosable: true,
       });
       setTimeout(() => {
-        setUser({ identifier: "", password: "" });
+        setUser({ username: "", email: "", password: "", role: "user" });
+        setConfirmPassword("");
         location.replace("/");
       }, 1500);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.error("Login failed:", error);
+      console.error("Registration failed:", error);
       toast({
-        title: error.data?.error?.message || "Login failed",
+        title: error.data?.error?.message || "Registration failed",
         status: "error",
         duration: 3000,
         isClosable: true,
       });
     }
   };
-
+  console.log(user);
   return (
     <Stack pt={20} direction={{ base: "column", md: "row" }}>
       <Flex p={8} flex={1} align={"center"} justify={"center"}>
         <Stack spacing={4} w={"full"} maxW={"md"}>
           <Heading mb={7} fontSize={"3xl"}>
-            Sign in to your account
+            Create your account
           </Heading>
           <Stack as={"form"} onSubmit={onSubmitHandler}>
+            <FormControl id="username">
+              <FormLabel>Username</FormLabel>
+              <Input
+                value={user.username}
+                name="username"
+                onChange={onChangeHandler}
+                onBlur={onBlurHandler}
+                focusBorderColor="#9f7aea"
+                errorBorderColor=""
+                isInvalid={isUsername}
+              />
+              {isUsername && (
+                <FormHelperText color="#FC8181">
+                  Please enter a username
+                </FormHelperText>
+              )}
+            </FormControl>
             <FormControl id="email">
               <FormLabel>Email address</FormLabel>
               <Input
-                value={user.identifier}
-                name="identifier"
+                value={user.email}
+                name="email"
                 onChange={onChangeHandler}
                 onBlur={onBlurHandler}
                 focusBorderColor="#9f7aea"
@@ -153,6 +195,36 @@ const LoginPage = () => {
                 </FormHelperText>
               )}
             </FormControl>
+            <FormControl id="confirm-password">
+              <FormLabel>Confirm Password</FormLabel>
+              <InputGroup>
+                <Input
+                  value={confirmPassword}
+                  name="confirmPassword"
+                  onChange={onConfirmPasswordChangeHandler}
+                  type={showPassword ? "text" : "password"}
+                  focusBorderColor="#9f7aea"
+                  isInvalid={isConfirmPassword}
+                />
+              </InputGroup>
+              {isConfirmPassword && (
+                <FormHelperText color="#FC8181">
+                  Passwords do not match
+                </FormHelperText>
+              )}
+            </FormControl>
+            <FormControl id="role">
+              <FormLabel>Role</FormLabel>
+              <Select
+                value={user.role}
+                name="role"
+                onChange={onChangeHandler}
+                focusBorderColor="#9f7aea"
+              >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </Select>
+            </FormControl>
             <Stack spacing={6}>
               <Stack
                 direction={{ base: "column", sm: "row" }}
@@ -160,25 +232,28 @@ const LoginPage = () => {
                 justify={"space-between"}
               >
                 <Checkbox colorScheme="purple">Remember me</Checkbox>
-                <Link color={"blue.500"}>Forgot password?</Link>
               </Stack>
               <Button
                 type="submit"
-                colorScheme={isEmail || isPassword ? "red" : "purple"}
+                colorScheme={
+                  isEmail || isPassword || isConfirmPassword || isUsername
+                    ? "red"
+                    : "purple"
+                }
                 variant={"solid"}
                 isLoading={isLoading}
               >
-                Sign in
+                Sign up
               </Button>
               <Flex>
                 <Box as="h2" mr={2}>
-                  Dosen't Have an account?
+                  Already have an account?
                 </Box>
                 <Link
-                  onClick={() => location.replace("/register")}
+                  onClick={() => location.replace("/login")}
                   color={"blue.500"}
                 >
-                  Sign up
+                  Sign in
                 </Link>
               </Flex>
             </Stack>
@@ -189,4 +264,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
