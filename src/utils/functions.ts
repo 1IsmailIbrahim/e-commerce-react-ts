@@ -1,5 +1,4 @@
 import { IProduct } from "../interfaces";
-import CookieService from "../services/CookieService";
 
 export const addItemToCart = (
   cartProducts: IProduct[],
@@ -12,7 +11,7 @@ export const addItemToCart = (
   if (exists) {
     return cartProducts.map((item: IProduct) =>
       item.id === selectedProduct.id
-        ? { ...item, quantity: item.quantity + 1 }
+        ? { ...item, quantity: (item.quantity ?? 0) - 1 }
         : item
     );
   }
@@ -24,10 +23,10 @@ export const removeItemFromCart = (
   cartItems: IProduct[],
   selectedProduct: IProduct
 ) => {
-  if (selectedProduct.quantity > 1) {
+  if (selectedProduct.quantity && selectedProduct.quantity > 1) {
     return cartItems.map((item: IProduct) =>
       item.id === selectedProduct.id
-        ? { ...item, quantity: item.quantity - 1 }
+        ? { ...item, quantity: (item.quantity ?? 0) - 1 }
         : item
     );
   }

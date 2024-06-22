@@ -23,8 +23,8 @@ import RegisterPage from "../pages/Register";
 
 const token = CookieService.get("jwt");
 const test = token ? true : false;
-const encodedData = CookieService.get("data");
-console.log(encodedData?.admin);
+const isAdmin = CookieService.get("data") === "true" ? true : false;
+console.log(isAdmin);
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -66,7 +66,7 @@ const router = createBrowserRouter(
         <Route
           index
           element={
-            <ProtectedRoute isAllowed={encodedData?.admin} redirectPath="/">
+            <ProtectedRoute isAllowed={isAdmin} redirectPath="/">
               <Dashboard />
             </ProtectedRoute>
           }
@@ -74,7 +74,7 @@ const router = createBrowserRouter(
         <Route
           path="products"
           element={
-            <ProtectedRoute isAllowed={encodedData?.admin} redirectPath="/">
+            <ProtectedRoute isAllowed={isAdmin} redirectPath="/">
               <DashboardProducts />
             </ProtectedRoute>
           }
@@ -82,7 +82,7 @@ const router = createBrowserRouter(
         <Route
           path="categories"
           element={
-            <ProtectedRoute isAllowed={encodedData?.admin} redirectPath="/">
+            <ProtectedRoute isAllowed={isAdmin} redirectPath="/">
               <DashboardCategories />
             </ProtectedRoute>
           }

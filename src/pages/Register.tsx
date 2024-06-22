@@ -112,8 +112,7 @@ const RegisterPage = () => {
       // Perform registration mutation
       const response = await userRegister(user).unwrap();
       CookieService.set("jwt", response.jwt, options);
-      // CookieService.set("role", JSON.stringify(user), options);
-      CookieService.set("data", response.user, options);
+      CookieService.set("data", response.user.admin, options);
       toast({
         title: "Registration successful",
         status: "success",
