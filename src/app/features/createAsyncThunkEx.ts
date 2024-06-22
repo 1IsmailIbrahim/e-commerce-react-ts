@@ -51,7 +51,7 @@
 //       state.loading = false;
 //       state.data = [];
 //       state.error = action.payload as string;
-//       console.log(action);
+//       (action);
 //     });
 //   },
 // });

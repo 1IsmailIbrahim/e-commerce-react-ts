@@ -138,8 +138,6 @@ const RegisterPage = () => {
     }
   };
 
-  console.log(user);
-
   return (
     <Stack pt={20} direction={{ base: "column", md: "row" }}>
       <Flex p={8} flex={1} align={"center"} justify={"center"}>

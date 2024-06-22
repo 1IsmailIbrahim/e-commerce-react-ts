@@ -24,7 +24,6 @@ import RegisterPage from "../pages/Register";
 const token = CookieService.get("jwt");
 const test = token ? true : false;
 const isAdmin = CookieService.get("data") === "true" ? true : false;
-console.log(isAdmin);
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>

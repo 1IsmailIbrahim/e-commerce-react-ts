@@ -39,7 +39,6 @@ const ProductDetailsPage = () => {
     },
   };
 
-  console.log(data);
   const { title, description, price, thumbnail, categories } =
     data?.data[0].attributes ?? {};
   const thumbnailUrl = thumbnail?.data?.attributes?.url;
