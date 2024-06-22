@@ -47,9 +47,7 @@ const CartDrawerItems = () => {
                 <Flex align={"center"}>
                   <Image
                     boxSize="80px"
-                    src={`${import.meta.env.VITE_SERVER_URL}${
-                      product.attributes.thumbnail?.data?.attributes?.url
-                    }`}
+                    src={`${product.attributes.thumbnail?.data?.attributes?.url}`}
                     alt={product.attributes.title}
                     borderRadius="md"
                     mr="4"
@@ -72,7 +70,7 @@ const CartDrawerItems = () => {
                 </Flex>
                 <Box>
                   <Text fontSize="sm" color="gray.500">
-                    Quantity: {product.quantity}
+                    Quantity: {product?.quantity}
                   </Text>
                   <Flex mt="2">
                     <Button

@@ -17,27 +17,38 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { ICategory } from "../../interfaces";
-
-import { useState } from "react";
+import { FaRegEdit } from "react-icons/fa";
+import { MdDeleteForever } from "react-icons/md";
+import { useEffect, useState } from "react";
 import {
   useGetCategoriesQuery,
   useAddCategoryMutation,
   useEditCategoriesMutation,
+  useDeleteCategoryMutation,
 } from "../../app/services/categoriesApiSlice";
+import AlertDialog from "../../shared/AlertDialog";
 
 const DashboardCategories = () => {
   const { colorMode } = useColorMode();
   const { data: categories, isLoading } = useGetCategoriesQuery();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isOpenDelete,
+    onOpen: onOpenDelete,
+    onClose: onCloseDelete,
+  } = useDisclosure();
   const toast = useToast();
 
   const [categoryTitle, setCategoryTitle] = useState<string>("");
   const [editCategoryId, setEditCategoryId] = useState<number | null>(null);
+  const [categoryToDelete, setCategoryToDelete] = useState<number | null>(null);
 
   const [addCategory, { isLoading: isAddingCategory }] =
     useAddCategoryMutation();
   const [editCategoryMutation, { isLoading: isEditingCategory }] =
     useEditCategoriesMutation();
+  const [deleteCategory, { isLoading: isDeletingCategory, isSuccess }] =
+    useDeleteCategoryMutation();
 
   const handleAddCategory = async () => {
     if (!categoryTitle.trim()) return;
@@ -82,6 +93,24 @@ const DashboardCategories = () => {
     setCategoryTitle(currentTitle);
     onOpen();
   };
+
+  const handleDelete = (categoryId: number) => {
+    setCategoryToDelete(categoryId);
+    onOpenDelete();
+  };
+
+  const onDestroyHandler = () => {
+    if (categoryToDelete !== null) {
+      deleteCategory(categoryToDelete).unwrap();
+    }
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      setCategoryToDelete(null);
+      onCloseDelete();
+    }
+  }, [isSuccess, onCloseDelete]);
 
   const handleSaveCategory = async () => {
     if (!editCategoryId || !categoryTitle.trim()) return;
@@ -149,14 +178,26 @@ const DashboardCategories = () => {
           <Box color={colorMode === "light" ? "black" : "white"}>
             {cat.attributes.title}
           </Box>
-          <Button
-            size="sm"
-            onClick={() => handleEditCategory(cat.id, cat.attributes.title)}
-            colorScheme="blue"
-            variant="outline"
-          >
-            Edit
-          </Button>
+          <Flex gap={2}>
+            <Button
+              size="sm"
+              onClick={() => handleEditCategory(cat.id, cat.attributes.title)}
+              colorScheme="purple"
+              variant="outline"
+            >
+              <FaRegEdit />
+            </Button>
+            <Button
+              size="sm"
+              bg="red.400"
+              variant="outline"
+              color="white"
+              _hover={{ bg: "red.500" }}
+              onClick={() => handleDelete(cat.id)}
+            >
+              <MdDeleteForever />
+            </Button>
+          </Flex>
         </Flex>
       ))}
 
@@ -199,6 +240,15 @@ const DashboardCategories = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+      <AlertDialog
+        isOpen={isOpenDelete}
+        alertName="Delete Product"
+        alertContent="Are you sure you want to delete this Product?"
+        mainButton="Destroy"
+        onClose={onCloseDelete}
+        onDestroyHandler={onDestroyHandler}
+        isLoading={isDeletingCategory}
+      />
     </Box>
   );
 };

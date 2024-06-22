@@ -27,7 +27,7 @@ export interface IProductAttributes {
 export interface IProduct {
   id: number;
   attributes: IProductAttributes;
-  // quantity?: number | undefined;
+  quantity?: number | undefined;
 }
 
 export interface IProductsResponse {

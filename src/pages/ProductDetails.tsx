@@ -97,8 +97,8 @@ const ProductDetailsPage = () => {
         <Flex mx={"auto"} gap={5}>
           {thumbnailUrl && (
             <HoverImage
-              thumbnailSrc={`${import.meta.env.VITE_SERVER_URL}${thumbnailUrl}`}
-              fullImageSrc={`${import.meta.env.VITE_SERVER_URL}${fullImageUrl}`}
+              thumbnailSrc={`${thumbnailUrl}`}
+              fullImageSrc={`${fullImageUrl}`}
               alt="Product image"
             />
           )}

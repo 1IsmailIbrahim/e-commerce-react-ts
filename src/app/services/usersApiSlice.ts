@@ -4,6 +4,8 @@ import { IUsersResponse } from "../../interfaces";
 export const usersApiSlice = createApi({
   reducerPath: "usersApi",
   tagTypes: ["User"],
+  refetchOnReconnect: true,
+  refetchOnMountOrArgChange: true,
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_SERVER_URL}`,
   }),

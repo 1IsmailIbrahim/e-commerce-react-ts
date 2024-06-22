@@ -40,9 +40,7 @@ const ProductCard = (data: IProduct) => {
     <Card maxW={"lg"} mx={"auto"} border={"1px solid #a8b5c8"} bg={"none"}>
       <CardBody display={"flex"} flexDir={"column"} justifyContent={"flex-end"}>
         <Image
-          src={`${import.meta.env.VITE_SERVER_URL}${
-            thumbnail?.data?.attributes?.url
-          }`}
+          src={`${thumbnail?.data?.attributes?.url}`}
           alt="Product image"
           borderRadius="20px"
           boxSize={200}

@@ -380,9 +380,7 @@ const DashboardProducts = () => {
                   <Image
                     boxSize={50}
                     rounded={"lg"}
-                    src={`${import.meta.env.VITE_SERVER_URL}${
-                      product.attributes.thumbnail.data?.attributes?.url
-                    }`}
+                    src={`${product.attributes.thumbnail.data?.attributes?.url}`}
                   />
                 </Td>
                 <Td>{product.attributes.stock}</Td>
@@ -509,9 +507,7 @@ const DashboardProducts = () => {
               boxSize="100px"
               src={
                 selectedFilePic ||
-                `${import.meta.env.VITE_SERVER_URL}${
-                  newProduct.thumbnail.data?.attributes?.url
-                }`
+                `${newProduct.thumbnail.data?.attributes?.url}`
               }
               alt="Product Thumbnail"
             />
@@ -606,9 +602,7 @@ const DashboardProducts = () => {
               boxSize="100px"
               src={
                 selectedFilePic ||
-                `${import.meta.env.VITE_SERVER_URL}${
-                  productToEdit?.attributes.thumbnail.data?.attributes?.url
-                }`
+                `${productToEdit?.attributes.thumbnail.data?.attributes?.url}`
               }
               alt="Product Thumbnail"
             />

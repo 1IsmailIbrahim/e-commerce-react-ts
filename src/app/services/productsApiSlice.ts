@@ -5,6 +5,8 @@ import CookieService from "../../services/CookieService";
 export const productsApiSlice = createApi({
   reducerPath: "productsApi",
   tagTypes: ["Product"],
+  refetchOnReconnect: true,
+  refetchOnMountOrArgChange: true,
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_SERVER_URL}`,
   }),
@@ -33,7 +35,6 @@ export const productsApiSlice = createApi({
         },
       }),
       async onQueryStarted({ id, body }, { dispatch, queryFulfilled }) {
-        // Ensure id is defined
         if (id === undefined) return;
         const patchResult = dispatch(
           productsApiSlice.util.updateQueryData(

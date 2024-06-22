@@ -5,6 +5,8 @@ import CookieService from "../../services/CookieService";
 export const categoriesApiSlice = createApi({
   reducerPath: "categoriesApi",
   tagTypes: ["Category"],
+  refetchOnReconnect: true,
+  refetchOnMountOrArgChange: true,
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_SERVER_URL}`,
   }),
@@ -12,8 +14,16 @@ export const categoriesApiSlice = createApi({
     getCategories: builder.query<ICategoryResponse, void>({
       query: () => ({
         url: "/api/categories",
-        providesTags: ["Category"],
       }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.map(
+                ({ id }) => ({ type: "Category", id } as const)
+              ),
+              { type: "Category", id: "LIST" },
+            ]
+          : [{ type: "Category", id: "LIST" }],
     }),
     editCategories: builder.mutation<ICategory, { id: number; body: FormData }>(
       {
@@ -64,6 +74,16 @@ export const categoriesApiSlice = createApi({
       }),
       invalidatesTags: ["Category"],
     }),
+    deleteCategory: builder.mutation<{ id: number }, number>({
+      query: (id) => ({
+        url: `/api/categories/${id}`,
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${CookieService.get("jwt")}`,
+        },
+      }),
+      invalidatesTags: ["Category"],
+    }),
   }),
 });
 
@@ -71,4 +91,5 @@ export const {
   useGetCategoriesQuery,
   useEditCategoriesMutation,
   useAddCategoryMutation,
+  useDeleteCategoryMutation,
 } = categoriesApiSlice;

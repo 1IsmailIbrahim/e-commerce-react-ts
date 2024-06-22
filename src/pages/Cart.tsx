@@ -29,7 +29,7 @@ const CartPage = () => {
 
   const calculateTotalPrice = () => {
     return cartProducts.reduce((total, product) => {
-      return total + product.attributes.price * product.quantity;
+      return total + product.attributes.price * product?.quantity;
     }, 0);
   };
 
@@ -62,9 +62,7 @@ const CartPage = () => {
                   <Image
                     w="full"
                     h="full"
-                    src={`${import.meta.env.VITE_SERVER_URL}${
-                      product.attributes.thumbnail?.data?.attributes?.url
-                    }`}
+                    src={`${product.attributes.thumbnail?.data?.attributes?.url}`}
                     alt={`product ${product.id} image`}
                   />
                 </Box>
