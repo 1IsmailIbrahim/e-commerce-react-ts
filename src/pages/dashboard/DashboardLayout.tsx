@@ -157,13 +157,12 @@ interface MobileProps extends FlexProps {
 }
 
 const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
-  const encodedData = CookieService.get("data");
-  console.log(encodedData);
+  const Username = CookieService.get("username");
 
   const handleSignOut = () => {
     CookieService.remove("data");
     CookieService.remove("jwt");
-    CookieService.remove("role");
+    CookieService.remove("username");
     location.replace("/");
   };
   return (
@@ -211,9 +210,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                   spacing="1px"
                   ml="2"
                 >
-                  <Text fontSize="sm">
-                    {encodedData && encodedData?.username}
-                  </Text>
+                  <Text fontSize="sm">{Username}</Text>
                   <Text fontSize="xs" color="gray.600">
                     Admin
                   </Text>

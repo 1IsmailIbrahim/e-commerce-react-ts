@@ -113,6 +113,7 @@ const RegisterPage = () => {
       const response = await userRegister(user).unwrap();
       CookieService.set("jwt", response.jwt, options);
       CookieService.set("data", response.user.admin, options);
+      CookieService.set("username", response.user.username, options);
       toast({
         title: "Registration successful",
         status: "success",

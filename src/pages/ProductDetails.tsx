@@ -8,19 +8,18 @@ import {
   Flex,
   Box,
 } from "@chakra-ui/react";
-import axios from "axios";
-import { useQuery } from "react-query";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ProductCardSkeleton from "../components/ProductCardSkeleton";
-import { IProduct } from "../interfaces";
 import HoverImage from "../components/HoverImage";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import { useAppDispatch } from "../app/store";
 import { addToCart } from "../app/features/cartSlice";
+import { useGetDashboardProductsQuery } from "../app/services/productsApiSlice";
+import { ICategory } from "../interfaces";
 
 const ProductDetailsPage = () => {
-  const { id } = useParams();
   const dispatch = useAppDispatch();
+  const { data, isLoading } = useGetDashboardProductsQuery();
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
   const buttonStyles = {
@@ -40,18 +39,9 @@ const ProductDetailsPage = () => {
     },
   };
 
-  const getProductDetails = async () => {
-    const { data } = await axios.get(
-      `${
-        import.meta.env.VITE_SERVER_URL
-      }/api/products/${id}?populate=thumbnail,categories&fields[0]=title&fields[2]=price&fields[1]=description`
-    );
-    return data;
-  };
-
-  const { data, isLoading } = useQuery(["product", id], getProductDetails);
+  console.log(data);
   const { title, description, price, thumbnail, categories } =
-    data?.data?.attributes ?? {};
+    data?.data[0].attributes ?? {};
   const thumbnailUrl = thumbnail?.data?.attributes?.url;
   const fullImageUrl = thumbnailUrl;
 
@@ -66,7 +56,9 @@ const ProductDetailsPage = () => {
   }
 
   const addToCartHandler = () => {
-    dispatch(addToCart(data.data));
+    if (data && data.data[0]) {
+      dispatch(addToCart(data.data[0]));
+    }
   };
 
   return (
@@ -105,13 +97,13 @@ const ProductDetailsPage = () => {
           <Stack justifyContent={"space-between"} maxW={"xl"} spacing="3">
             <Heading size="lg">{title}</Heading>
             <Box fontWeight={"bold"} fontSize={"20px"}>
-              Discription :
+              Description :
               <Text fontWeight={"100"} fontSize={"18px"}>
                 {description}
               </Text>
             </Box>
             <Flex gap={1} flexWrap={"wrap"}>
-              {categories?.data.map((category: IProduct, idx: number) => (
+              {categories?.data.map((category: ICategory, idx: number) => (
                 <Text
                   align={"center"}
                   cursor={"pointer"}

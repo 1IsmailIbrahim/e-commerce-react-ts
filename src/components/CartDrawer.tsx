@@ -26,7 +26,7 @@ const CartDrawer = () => {
 
   const calculateTotalPrice = () => {
     return cartProducts.reduce((total: number, product: IProduct) => {
-      return total + product.attributes.price * product?.quantity;
+      return total + product.attributes.price * (product.quantity ?? 0);
     }, 0);
   };
 
