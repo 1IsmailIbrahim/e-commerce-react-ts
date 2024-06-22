@@ -17,12 +17,13 @@ const ProductsPage = () => {
       </Box>
     );
   }
-
   return (
     <Box maxW="1400px" mx="auto" px={4} py={8} pt={20}>
-      <Grid templateColumns="repeat(auto-fill, minmax(350px, 1fr))" gap={6}>
+      <Grid templateColumns="repeat(auto-fill, minmax(300px, 1fr))" gap={6}>
         {data?.data.map((product: IProduct) => (
-          <ProductCard key={product.id} {...product} />
+          <Box>
+            <ProductCard key={product.id} {...product} />
+          </Box>
         ))}
       </Grid>
     </Box>

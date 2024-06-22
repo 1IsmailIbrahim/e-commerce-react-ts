@@ -42,7 +42,7 @@ const RegisterPage = () => {
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    if (name === "role") {
+    if (name === "admin") {
       setUser({ ...user, admin: value === "true" }); // Convert string to boolean
     } else {
       setUser({ ...user, [name]: value });
@@ -112,7 +112,7 @@ const RegisterPage = () => {
       // Perform registration mutation
       const response = await userRegister(user).unwrap();
       CookieService.set("jwt", response.jwt, options);
-      CookieService.set("data", response.user.admin, options);
+      CookieService.set("data", response.user.admin.toString(), options);
       CookieService.set("username", response.user.username, options);
       toast({
         title: "Registration successful",

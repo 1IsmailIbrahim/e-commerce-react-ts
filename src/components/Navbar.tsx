@@ -34,13 +34,14 @@ const Navbar = () => {
   const navbarRef = useRef<HTMLDivElement>(null);
   const token = CookieService.get("jwt");
   const [isLargerThanMobile] = useMediaQuery("(min-width: 48em)");
+  const isAdmin = !!CookieService.get("data");
 
   const LinkStyles = {
     variant: "ghost",
     size: "sm",
     border: "1px solid",
     borderRadius: "30",
-    padding: "0.5rem 1rem",
+    padding: "0.2rem 1rem",
     transition: "all 0.3s",
     _hover: {
       color: colorMode === "light" ? "#8D64DF" : "#9f7aea",
@@ -147,17 +148,26 @@ const Navbar = () => {
       justify="space-between"
       wrap="wrap"
       padding="1rem"
-      bg={isOpen ? "rgba(220,220,220, 0.4)" : "transparent"}
+      bg={
+        isOpen || colorMode === "light"
+          ? "rgba(220,220,220, 0.4)"
+          : "transparent"
+      }
       color={colorMode === "light" ? "gray.900" : "white"}
       position="absolute"
       top={0}
       width="100%"
       zIndex={3}
     >
-      <Flex align="center" mr={5}>
+      <Flex gap={4} align="center" mr={5}>
         <Heading cursor={"pointer"} as={Link} to={`/`} size="md">
           Elimr
         </Heading>
+        {isAdmin && (
+          <Button as={NavLink} {...LinkStyles} to={"/dashboard"}>
+            Dashboard
+          </Button>
+        )}
       </Flex>
       <Box display={{ base: "flex", md: "none" }}>
         {token && !isLargerThanMobile && ProfileMenu()}
@@ -177,6 +187,7 @@ const Navbar = () => {
           align="center"
           flexDirection={{ base: isOpen ? "column" : "row", md: "row" }}
           flexBasis={{ base: "100%", md: "auto" }}
+          marginTop={{ base: "15px", md: "auto" }}
         >
           <Button
             {...LinkStyles}

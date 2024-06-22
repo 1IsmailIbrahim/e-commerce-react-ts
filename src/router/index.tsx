@@ -23,7 +23,8 @@ import RegisterPage from "../pages/Register";
 
 const token = CookieService.get("jwt");
 const test = token ? true : false;
-const isAdmin = CookieService.get("data") === "true" ? true : false;
+const isAdmin = !!CookieService.get("data");
+console.log(isAdmin);
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -59,52 +60,21 @@ const router = createBrowserRouter(
       {/* Dashboard Layout */}
       <Route
         path="/dashboard"
-        element={<DashboardLayout children={undefined} />}
+        element={
+          <ProtectedRoute isAllowed={isAdmin} redirectPath="/">
+            <DashboardLayout children={undefined} />
+          </ProtectedRoute>
+        }
         errorElement={<ErrorHandler />}
       >
-        <Route
-          index
-          element={
-            <ProtectedRoute isAllowed={isAdmin} redirectPath="/">
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="products"
-          element={
-            <ProtectedRoute isAllowed={isAdmin} redirectPath="/">
-              <DashboardProducts />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="categories"
-          element={
-            <ProtectedRoute isAllowed={isAdmin} redirectPath="/">
-              <DashboardCategories />
-            </ProtectedRoute>
-          }
-        />
+        <Route index element={<Dashboard />} />
+        <Route path="products" element={<DashboardProducts />} />
+        <Route path="categories" element={<DashboardCategories />} />
       </Route>
       {/* Login Page */}
-      <Route
-        path="/login"
-        element={
-          <ProtectedRoute isAllowed={!test} redirectPath="/">
-            <LoginPage />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/login" element={<LoginPage />} />
       {/* Register Page */}
-      <Route
-        path="/register"
-        element={
-          <ProtectedRoute isAllowed={!test} redirectPath="/">
-            <RegisterPage />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/register" element={<RegisterPage />} />
       {/* Page Not Found */}
       <Route path="*" element={<PageNotFound />} />
     </>

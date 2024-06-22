@@ -11,7 +11,7 @@ export const addItemToCart = (
   if (exists) {
     return cartProducts.map((item: IProduct) =>
       item.id === selectedProduct.id
-        ? { ...item, quantity: (item.quantity ?? 0) - 1 }
+        ? { ...item, quantity: (item.quantity ?? 0) + 1 }
         : item
     );
   }
