@@ -228,11 +228,11 @@ const RegisterPage = () => {
                 </FormHelperText>
               )}
             </FormControl>
-            <FormControl id="role">
+            <FormControl id="admin">
               <FormLabel>Role</FormLabel>
               <Select
                 value={user.admin ? "true" : "false"} // Display as string
-                name="role"
+                name="admin"
                 onChange={onChangeHandler}
                 focusBorderColor="#9f7aea"
               >
