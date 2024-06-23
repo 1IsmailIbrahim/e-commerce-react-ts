@@ -37,7 +37,13 @@ const ProductCard = (data: IProduct) => {
   };
 
   return (
-    <Card maxW={"lg"} mx={"auto"} border={"1px solid #a8b5c8"} bg={"none"}>
+    <Card
+      maxW={"lg"}
+      minH={"450px"}
+      mx={"auto"}
+      border={"1px solid #a8b5c8"}
+      bg={"none"}
+    >
       <CardBody display={"flex"} flexDir={"column"} justifyContent={"flex-end"}>
         <Image
           src={`${thumbnail?.data?.attributes?.url}`}

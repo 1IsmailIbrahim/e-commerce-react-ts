@@ -30,7 +30,9 @@ import {
   FiChevronDown,
   FiShoppingCart,
   FiCommand,
+  FiBarChart2,
 } from "react-icons/fi";
+
 import { IconType } from "react-icons";
 import { ReactText } from "react";
 import { NavLink as RouterLink } from "react-router-dom";
@@ -43,9 +45,10 @@ interface LinkItemProps {
   icon: IconType;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { to: "/dashboard", name: "Dashbord", icon: FiHome },
+  { to: "/dashboard", name: "Dashbord", icon: FiBarChart2 },
   { to: "/dashboard/products", name: "Products", icon: FiShoppingCart },
   { to: "/dashboard/categories", name: "Categories", icon: FiCommand },
+  { to: "/", name: "Home", icon: FiHome },
 ];
 
 const DashboardLayout = ({ children }: { children: ReactNode }) => {
@@ -184,7 +187,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         aria-label="open menu"
         icon={<FiMenu />}
       />
-
       <HStack spacing={{ base: "0", md: "6" }}>
         <Button
           width={"10"}

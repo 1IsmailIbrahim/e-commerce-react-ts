@@ -8,16 +8,17 @@ import {
   Flex,
   Box,
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ProductCardSkeleton from "../components/ProductCardSkeleton";
 import HoverImage from "../components/HoverImage";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import { useAppDispatch } from "../app/store";
 import { addToCart } from "../app/features/cartSlice";
 import { useGetDashboardProductsQuery } from "../app/services/productsApiSlice";
-import { ICategory } from "../interfaces";
+import { ICategory, IProduct } from "../interfaces";
 
 const ProductDetailsPage = () => {
+  const { id } = useParams();
   const dispatch = useAppDispatch();
   const { data, isLoading } = useGetDashboardProductsQuery();
   const navigate = useNavigate();
@@ -38,9 +39,12 @@ const ProductDetailsPage = () => {
       transition: "background-color 0.3s",
     },
   };
+  const selectedProduct = data?.data.find(
+    (product: IProduct) => product.id === +`${id}`
+  );
 
   const { title, description, price, thumbnail, categories } =
-    data?.data[0].attributes ?? {};
+    selectedProduct?.attributes ?? {};
   const thumbnailUrl = thumbnail?.data?.attributes?.url;
   const fullImageUrl = thumbnailUrl;
 
