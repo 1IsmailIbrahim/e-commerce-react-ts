@@ -47,7 +47,11 @@ export const store: EnhancedStore<{
     [usersApiSlice.reducerPath]: usersApiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
+      },
+    }).concat(
       LoginApiSlice.middleware,
       RegisterApiSlice.middleware,
       productsApiSlice.middleware,

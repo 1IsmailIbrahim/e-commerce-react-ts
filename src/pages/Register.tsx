@@ -19,6 +19,7 @@ import {
 import { ChangeEvent, FormEvent, useState } from "react";
 import CookieService from "../services/CookieService";
 import { useUserRegisterMutation } from "../app/features/registerSlice";
+import { NavLink } from "react-router-dom";
 
 const RegisterPage = () => {
   const [userRegister, { isLoading }] = useUserRegisterMutation();
@@ -263,10 +264,7 @@ const RegisterPage = () => {
                 <Box as="h2" mr={2}>
                   Already have an account?
                 </Box>
-                <Link
-                  onClick={() => window.location.replace("/login")}
-                  color={"blue.500"}
-                >
+                <Link as={NavLink} to={"/login"} color={"purple.500"}>
                   Sign in
                 </Link>
               </Flex>

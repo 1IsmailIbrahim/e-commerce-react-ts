@@ -10,6 +10,7 @@ interface ILoginResponse {
     id: number;
     username: string;
     email: string;
+    admin: string;
   };
 }
 export const LoginApiSlice = createApi({

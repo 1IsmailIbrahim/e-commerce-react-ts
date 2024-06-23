@@ -6,7 +6,7 @@ import CartDrawer from "./components/CartDrawer";
 const App = () => {
   return (
     <ChakraProvider>
-      <ColorModeScript initialColorMode="light" />
+      <ColorModeScript initialColorMode="dark" />
       <RouterProvider router={router} />
       <CartDrawer />
     </ChakraProvider>
