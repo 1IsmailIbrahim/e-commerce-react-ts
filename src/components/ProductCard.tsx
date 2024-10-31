@@ -38,59 +38,49 @@ const ProductCard = (data: IProduct) => {
 
   return (
     <Card
-      maxW={"lg"}
-      minH={"450px"}
-      mx={"auto"}
-      border={"1px solid #a8b5c8"}
-      bg={"none"}
+      maxW="300px"
+      h="470px"
+      mx="auto"
+      border="1px solid #a8b5c8"
+      bg="none"
+      boxShadow="lg"
+      borderRadius="lg"
     >
-      <CardBody display={"flex"} flexDir={"column"} justifyContent={"flex-end"}>
+      <CardBody display="flex" flexDirection="column" alignItems="center">
         <Image
-          src={`${thumbnail?.data?.attributes?.url}`}
+          src={thumbnail?.data?.attributes?.url}
           alt="Product image"
-          borderRadius="20px"
-          boxSize={200}
-          mx={"auto"}
+          borderRadius="md"
+          boxSize="200px"
+          objectFit="contain"
         />
-        <Stack mt="6" spacing="3" textAlign={"center"}>
+        <Stack mt="6" spacing="3" textAlign="center" width="100%">
           <Heading size="md">{title}</Heading>
-          <Text>
-            {description.length >= 100
-              ? `${description.slice(0, 100)}...`
-              : description}
-          </Text>
-          <Text color="purple.600" fontSize="3xl">
+          <Text noOfLines={2}>{description}</Text>
+          <Text color="purple.600" fontSize="2xl">
             ${price}
           </Text>
           <Flex
-            justifyContent={"center"}
-            alignItems={"center"}
+            justifyContent="center"
+            alignItems="center"
             gap={2}
-            flexDirection={{ base: "column", lg: "row" }}
+            flexDirection={{ lg: "row" }}
+            overflow={"hidden"}
           >
             <Button
-              w={"full"}
               as={Link}
               to={`/product/${id}`}
-              py={"10px"}
-              px={"5px"}
-              overflow={"hidden"}
-              size={"xl"}
-              border={"none"}
-              variant="outline"
+              w="full"
+              py="10px"
+              px="5px"
               {...buttonStyles}
             >
               View Details
             </Button>
             <Button
-              ml={0}
-              w={"full"}
-              py={"10px"}
-              px={"5px"}
-              overflow={"hidden"}
-              size={"xl"}
-              border={"none"}
-              variant="outline"
+              w="full"
+              py="10px"
+              px="5px"
               {...buttonStyles}
               onClick={addToCartHandler}
             >

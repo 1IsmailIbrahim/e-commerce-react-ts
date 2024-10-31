@@ -59,8 +59,8 @@ const ProductDetailsPage = () => {
   }
 
   const addToCartHandler = () => {
-    if (data && data.data[0]) {
-      dispatch(addToCart(data.data[0]));
+    if (selectedProduct) {
+      dispatch(addToCart(selectedProduct));
     }
   };
 

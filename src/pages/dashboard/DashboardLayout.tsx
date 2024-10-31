@@ -35,7 +35,7 @@ import {
 
 import { IconType } from "react-icons";
 import { ReactText } from "react";
-import { NavLink as RouterLink } from "react-router-dom";
+import { NavLink as RouterLink, Link as ReactLink } from "react-router-dom";
 import ColorModeToggle from "../../components/ColorModeToggle";
 import CookieService from "../../services/CookieService";
 
@@ -226,9 +226,11 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               bg={useColorModeValue("white", "gray.900")}
               borderColor={useColorModeValue("gray.200", "gray.700")}
             >
+              <ReactLink to={"/"}>
+                <MenuItem>Home</MenuItem>
+              </ReactLink>
               <MenuItem>Profile</MenuItem>
               <MenuItem>Settings</MenuItem>
-              <MenuItem>Billing</MenuItem>
               <MenuDivider />
               <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
             </MenuList>

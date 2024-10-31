@@ -8,7 +8,6 @@ interface IProps {
 }
 const HoverImage = ({ thumbnailSrc, fullImageSrc, alt }: IProps) => {
   const [isHovered, setIsHovered] = useState(false);
-
   return (
     <Box
       position="relative"
@@ -16,18 +15,25 @@ const HoverImage = ({ thumbnailSrc, fullImageSrc, alt }: IProps) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Image rounded={"md"} boxSize={400} src={thumbnailSrc} alt={alt} />
+      <Image
+        rounded={"md"}
+        objectFit="contain"
+        boxSize={400}
+        src={thumbnailSrc}
+        alt={alt}
+      />
       <Image
         src={fullImageSrc}
         alt={alt}
         position="absolute"
-        top="120px"
+        objectFit="contain"
+        top="-20px"
         left="0"
         zIndex={1}
         boxShadow="md"
         transition="transform 0.3s ease"
         rounded={"md"}
-        transform={isHovered ? "scale(1.7)" : "scale(1)"}
+        transform={isHovered ? "scale(1.2)" : "scale(1)"}
         visibility={isHovered ? "visible" : "hidden"}
       />
     </Box>
